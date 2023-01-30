@@ -47,6 +47,7 @@ function root_need(){
 #检查版本
 function is_inspect_script(){
     yum install -y wget jq
+    echo -e "${Green}您已开始检查版本${Font}"
 
     if [ $inspect_script == 1 ];then
         remote_version=$(wget -qO- -t1 -T2 "https://gitee.com/api/v5/repos/${git_project_name}/releases/latest" |  jq -r '.tag_name')
@@ -56,15 +57,13 @@ function is_inspect_script(){
 
     if [ ! "${remote_version}"x = "${shell_version}"x ];then
         if [ $inspect_script == 1 ];then
-            wget -N "https://gitee.com/${git_project_name}/releases/download/${remote_version}/$0"
+            bash <( curl -s -S -L "https://gitee.com/${git_project_name}/releases/download/${remote_version}/$0" )
         elif [ $inspect_script == 2 ];then
-            wget -N "https://github.com/${git_project_name}/releases/download/${remote_version}/$0"
+            bash <( curl -s -S -L "https://github.com/${git_project_name}/releases/download/${remote_version}/$0" )
         fi
     else
         echo -e "${Green}您现在的版本是最新版${Font}"
     fi
-    echo -e "${Green}您已更新最新版本，请重新执行${Font}"
-    exit 1
 }
 
 #检测输入封装的方法
@@ -133,7 +132,13 @@ function install_docker(){
         sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
         systemctl restart rsyslog
 
-        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        cat << EOF > /etc/yum.repos.d/docker-ce.repo
+[dockerCe]
+name=dockerCe
+baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7.9/x86_64/stable
+gpgcheck=0
+enabled=1
+EOF
         yum clean all && yum makecache
         yum -y install docker-ce docker-ce-cli containerd.io && systemctl start docker && systemctl enable docker
 
@@ -154,7 +159,6 @@ EOF
 
         cat << EOF > /etc/rsyslog.d/rule.conf
 \$EscapeControlCharactersOnReceive off
-# 删除日志首位空格,只保留原日志
 \$template CleanMsgFormat,"%msg:2:$%\n"
 
 \$template docker,"data/logs/docker/%syslogtag:F,44:1%/%\$YEAR%-%\$MONTH%-%\$DAY%.log"
@@ -189,7 +193,6 @@ function not_all(){
 function main(){
         root_need
         if [ ! $inspect_script == 0 ];then
-                echo -e "${Green}您已开始检查版本${Font}"
                 is_inspect_script
         else
                 echo -e "${Green}您已跳过检查版本${Font}"
