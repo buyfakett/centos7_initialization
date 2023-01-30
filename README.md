@@ -11,6 +11,10 @@ vim 脚本名
 
 :x
 ```
+可以使用以下命令直接执行
+```bash
+bash <(curl -s -S -L https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.0.0/initialization.sh)
+```
 
 脚本不是很成熟，有bug请及时在github反馈哦~ 或者发作者邮箱：buyfakett@vip.qq.com
 
