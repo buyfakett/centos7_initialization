@@ -9,7 +9,7 @@ if_all=n
 ####################################################参数修改结束########################################################################
 
 flag=n
-PWD=$pwd
+pwd=$(pwd)
 
 #颜色参数，让脚本更好看
 Green="\033[32m"
@@ -17,7 +17,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.0.0
+shell_version=v1.0.1
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -57,9 +57,9 @@ function is_inspect_script(){
 
     if [ ! "${remote_version}"x = "${shell_version}"x ];then
         if [ $inspect_script == 1 ];then
-            bash <( curl -s -S -L "https://gitee.com/${git_project_name}/releases/download/${remote_version}/$0" )
+            bash <( curl -s -S -L "https://gitee.com/${git_project_name}/releases/download/${remote_version}/$(basename $0)" )
         elif [ $inspect_script == 2 ];then
-            bash <( curl -s -S -L "https://github.com/${git_project_name}/releases/download/${remote_version}/$0" )
+            bash <( curl -s -S -L "https://github.com/${git_project_name}/releases/download/${remote_version}/$(basename $0)" )
         fi
     else
         echo -e "${Green}您现在的版本是最新版${Font}"
@@ -120,14 +120,20 @@ function update(){
                         echo "输入不对,请重新输入"
                         update
         esac
-        yum install -y yum-utils device-mapper-persistent-data lvm2
+        yum install -y yum-utils device-mapper-persistent-data lvm2 tree
         yum update -y
 
-        cd $PWD
+        cd ${pwd}
+}
+
+#安装工具
+function install_tools(){
+        wget https://gitee.com/buyfakett/script/raw/main/tools/swap.sh
 }
 
 #下载docker
 function install_docker(){
+        sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
         sed -i 's/#$ModLoad imtcp/$ModLoad imtcp/g' /etc/rsyslog.conf
         sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
         systemctl restart rsyslog
@@ -139,7 +145,7 @@ baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7.9/x86_64/stable
 gpgcheck=0
 enabled=1
 EOF
-        yum clean all && yum makecache
+        yum makecache
         yum -y install docker-ce docker-ce-cli containerd.io && systemctl start docker && systemctl enable docker
 
         cat << EOF > /etc/docker/daemon.json
@@ -182,6 +188,7 @@ function all(){
 #需要手动确认
 function not_all(){
         update
+        install_tools
         echo -e "${Green}是否安装docker${Font}"
         judge
         if [[ "$flag"x == "y"x ]];then
@@ -200,6 +207,14 @@ function main(){
 
         echo_help
         [ "$if_all"x == "y"x ] && all || not_all
+
+        install_tools
+        echo -e "${Green}是否生成虚拟缓存${Font}"
+        judge
+        if [[ "$flag"x == "y"x ]];then
+                /bin/bash swap.sh
+                flag=n
+        fi
 }
 
 main
