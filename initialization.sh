@@ -17,7 +17,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.0.1
+shell_version=v1.0.2
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -128,7 +128,7 @@ function update(){
 
 #安装工具
 function install_tools(){
-        wget https://gitee.com/buyfakett/script/raw/main/tools/swap.sh
+        wget https://gitee.com/buyfakett/script/raw/main/tools/add2swap.sh
 }
 
 #下载docker
@@ -183,16 +183,26 @@ chmod +x /usr/local/bin/docker-compose
 function all(){
         update
         install_docker
+        install_tools
+        /bin/bash add2swap.sh
 }
 
 #需要手动确认
 function not_all(){
         update
         install_tools
+
         echo -e "${Green}是否安装docker${Font}"
         judge
         if [[ "$flag"x == "y"x ]];then
                 install_docker
+                flag=n
+        fi
+
+        echo -e "${Green}是否生成2倍虚拟缓存${Font}"
+        judge
+        if [[ "$flag"x == "y"x ]];then
+                /bin/bash swap.sh
                 flag=n
         fi
 }
@@ -207,14 +217,6 @@ function main(){
 
         echo_help
         [ "$if_all"x == "y"x ] && all || not_all
-
-        install_tools
-        echo -e "${Green}是否生成虚拟缓存${Font}"
-        judge
-        if [[ "$flag"x == "y"x ]];then
-                /bin/bash swap.sh
-                flag=n
-        fi
 }
 
 main
