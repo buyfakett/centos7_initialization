@@ -1,15 +1,8 @@
 #!/bin/bash
-####################################################参数修改开始########################################################################
 
-#检查版本（0是不检查；1是检测gitee；2是检测github）
-inspect_script=1
-#是否全部执行（y为全部执行）
-if_all=n
-
-####################################################参数修改结束########################################################################
-
-flag=n
 pwd=$(pwd)
+#docker位置
+docker_data="/data/data-docker"
 
 #颜色参数，让脚本更好看
 Green="\033[32m"
@@ -17,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.0.2
+shell_version=v1.1.0
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -57,9 +50,9 @@ function is_inspect_script(){
 
     if [ ! "${remote_version}"x = "${shell_version}"x ];then
         if [ $inspect_script == 1 ];then
-            bash <( curl -s -S -L "https://gitee.com/${git_project_name}/releases/download/${remote_version}/$(basename $0)" )
+            bash <( curl -s -S -L "https://gitee.com/${git_project_name}/raw/master/$(basename $0)" )
         elif [ $inspect_script == 2 ];then
-            bash <( curl -s -S -L "https://github.com/${git_project_name}/releases/download/${remote_version}/$(basename $0)" )
+            bash <( curl -s -S -L "https://github.com/${git_project_name}/raw/master/$(basename $0)" )
         fi
     else
         echo -e "${Green}您现在的版本是最新版${Font}"
@@ -120,7 +113,7 @@ function update(){
                         echo "输入不对,请重新输入"
                         update
         esac
-        yum install -y yum-utils device-mapper-persistent-data lvm2 tree
+        yum install -y yum-utils device-mapper-persistent-data lvm2 tree git
         yum update -y
 
         cd ${pwd}
@@ -153,7 +146,7 @@ EOF
   "registry-mirrors": [
     "https://pee6w651.mirror.aliyuncs.com"
   ],
-  "data-root": "/data/data-docker",
+  "data-root": "${docker_data}",
   "log-driver": "syslog",
   "log-opts": {
     "syslog-address": "tcp://127.0.0.1:514",
@@ -179,44 +172,79 @@ curl -L https://get.daocloud.io/docker/compose/releases/download/1.25.1/docker-c
 chmod +x /usr/local/bin/docker-compose
 }
 
-#全部执行（不用输入y）
-function all(){
-        update
-        install_docker
-        install_tools
-        /bin/bash add2swap.sh
-}
-
-#需要手动确认
-function not_all(){
-        update
-        install_tools
-
-        echo -e "${Green}是否安装docker${Font}"
-        judge
-        if [[ "$flag"x == "y"x ]];then
-                install_docker
-                flag=n
-        fi
-
-        echo -e "${Green}是否生成2倍虚拟缓存${Font}"
-        judge
-        if [[ "$flag"x == "y"x ]];then
-                /bin/bash swap.sh
-                flag=n
-        fi
-}
-
 function main(){
         root_need
-        if [ ! $inspect_script == 0 ];then
+
+        inspect_script=$(whiptail --title "是否检查脚本" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+        "0" "不检查更新" \
+        "1" "gitee" \
+        "2" "github"\
+        "3" "退出" 3>&1 1>&2 2>&3)
+        EXITSTATUS=$?
+        if [ $EXITSTATUS = 0 ]; then
+                case $inspect_script in
+                0)
+                echo "已跳过安装"
+                ;;
+                1|2)
                 is_inspect_script
+                ;;
+                3)
+                exit 0
+                ;;
+                *)
+                echo "操作错误"
+                ;;
+                esac
+
         else
-                echo -e "${Green}您已跳过检查版本${Font}"
+                exit 0
         fi
 
         echo_help
-        [ "$if_all"x == "y"x ] && all || not_all
+
+        OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+        "1" "手动选择安装" \
+        "2" "一键全部安装" \
+        "3" "退出" 3>&1 1>&2 2>&3)
+
+        EXITSTATUS=$?
+
+        if [ $EXITSTATUS = 0 ]; then
+                case $OPTION in
+                1)
+                update
+                install_tools
+                if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
+                        docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                        install_docker
+                else
+                        echo "已跳过安装"
+                fi
+                if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
+                        /bin/bash add2swap.sh
+                else
+                        echo "已跳过安装"
+                fi
+                ;;
+                2)
+                update
+                install_docker
+                install_tools
+                /bin/bash add2swap.sh
+                ;;
+                3)
+                exit 0
+                ;;
+                *)
+                echo "操作错误"
+                ;;
+                esac
+
+            else
+                exit 0
+            fi
+
 }
 
 main
