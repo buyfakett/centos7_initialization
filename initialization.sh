@@ -121,7 +121,7 @@ function update(){
 
 #安装工具
 function install_tools(){
-        wget https://gitee.com/buyfakett/script/raw/main/tools/add2swap.sh
+        wget https://gitee.com/${git_project_name}/raw/master/add2swap.sh
 }
 
 #下载docker
