@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.1.0
+shell_version=v1.1.1
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -59,23 +59,6 @@ function is_inspect_script(){
     fi
 }
 
-#检测输入封装的方法
-function judge(){
-        read -p "输入y继续:" para
-
-        case $para in 
-                [yY])
-                        flag=y
-                        ;;
-                [nN])
-                        flag=n
-                        ;;
-                *)
-                        echo "输入不对,请重新输入"
-                        judge
-        esac  
-}
-
 #更新yum包
 function update(){
         yum install -y wget
@@ -90,7 +73,7 @@ function update(){
         read -p "是否换源:" para
         case $para in 
                 0)
-                        echo -e "您已选择不换源"
+                        echo -e "${Green}您已选择不换源${Font}"
                         ;;
                 1)
                         mv Centos-Base.repo Centos-Base.repo.bak
@@ -110,7 +93,7 @@ function update(){
                         yum clean all && yum makecache
                         ;;
                 *)
-                        echo "输入不对,请重新输入"
+                        echo -e "${Red}输入不对,请重新输入${Font}"
                         update
         esac
         yum install -y yum-utils device-mapper-persistent-data lvm2 tree git
@@ -184,7 +167,7 @@ function main(){
         if [ $EXITSTATUS = 0 ]; then
                 case $inspect_script in
                 0)
-                echo "已跳过安装"
+                echo -e "${Green}已跳过检查更新${Font}"
                 ;;
                 1|2)
                 is_inspect_script
@@ -193,7 +176,7 @@ function main(){
                 exit 0
                 ;;
                 *)
-                echo "操作错误"
+                echo -e "${Red}操作错误${Font}"
                 ;;
                 esac
 
@@ -219,12 +202,12 @@ function main(){
                         docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                         install_docker
                 else
-                        echo "已跳过安装"
+                        echo -e "${Red}已跳过安装${Font}"
                 fi
                 if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
                         /bin/bash add2swap.sh
                 else
-                        echo "已跳过安装"
+                        echo -e "${Red}已跳过安装${Font}"
                 fi
                 ;;
                 2)
@@ -237,7 +220,7 @@ function main(){
                 exit 0
                 ;;
                 *)
-                echo "操作错误"
+                echo -e "${Red}操作错误${Font}"
                 ;;
                 esac
 
