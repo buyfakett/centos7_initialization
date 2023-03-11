@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.1.1
+shell_version=v1.2.0
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -61,17 +61,18 @@ function is_inspect_script(){
 
 #更新yum包
 function update(){
-        yum install -y wget
+        yum install -y wget whiptail
         cd /etc/yum.repos.d
-        clear
-        echo -e "${Green}
-0:不换源
-1:阿里
-2:网易
-3:清华大学
-        ${Font}"
-        read -p "是否换源:" para
-        case $para in 
+
+        inspect_script_yum=$(whiptail --title "是否换源" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+        "0" "不换源" \
+        "1" "阿里" \
+        "2" "网易"\
+        "3" "清华大学"\
+        "4" "退出" 3>&1 1>&2 2>&3)
+        EXITSTATUS_YUM=$?
+        if [ $EXITSTATUS_YUM = 0 ]; then
+                case $inspect_script_yum in
                 0)
                         echo -e "${Green}您已选择不换源${Font}"
                         ;;
@@ -93,10 +94,18 @@ function update(){
                         yum clean all && yum makecache
                         ;;
                 *)
-                        echo -e "${Red}输入不对,请重新输入${Font}"
-                        update
-        esac
-        yum install -y yum-utils device-mapper-persistent-data lvm2 tree git
+                        echo -e "${Red}操作错误${Font}"
+                        ;;
+                esac
+        else
+                exit 0
+        fi
+        
+        yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch chrony lrzsz
+
+        systemctl enable chronyd
+        systemctl start chronyd
+
         yum update -y
 
         cd ${pwd}
@@ -104,7 +113,7 @@ function update(){
 
 #安装工具
 function install_tools(){
-        wget https://gitee.com/${git_project_name}/raw/master/add2swap.sh
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/add2swap.sh
 }
 
 #下载docker
@@ -151,40 +160,84 @@ systemctl restart rsyslog
 
 systemctl restart docker
 
-curl -L https://get.daocloud.io/docker/compose/releases/download/1.25.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+curl -L https://get.daocloud.io/docker/compose/releases/download/v2.16.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
+
+        cat << EOF > /data/logs/docker/gzip_log.sh
+#!/bin/bash
+
+for day in 1;
+do
+find /data/logs/ -name `date -d "${day} days ago" +%Y-%m-%d`*.log -type f -exec gzip {} \;
+done
+EOF
+
+        cat << EOF >> /var/spool/cron/root
+0 12 * * * /bin/sh -x /data/logs/docker/gzip_log.sh
+EOF
+}
+
+#安装nginx
+function install_nginx(){
+        mkdir -p /root/nginx/config/conf.d/
+
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O /root/nginx/config/nginx.conf
+
+        cat << EOF >> /root/nginx/setup.sh
+docker run -id \
+--name nginx \
+--restart=always \
+-e LC_ALL="C.UTF-8" \
+-e LANG="C.UTF-8" \
+--network=host \
+-v \$(pwd)/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \
+-v \$(pwd)/config/conf.d/:/etc/nginx/conf.d/ \
+-v \$(pwd)/ssl/:/etc/nginx/ssl/ \
+-v \$(pwd)/lua/:/etc/nginx/lua/ \
+-v /data/nginx/web/:/data/web/ \
+-v /data/nginx/res/:/data/res/ \
+-v /data/nginx/logs/nginx/:/data/logs/nginx/ \
+-v /etc/localtime:/etc/localtime:ro \
+openresty/openresty
+EOF
+
+wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O /root/nginx/config/conf.d/api.conf.bak
+wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O /root/nginx/config/conf.d/reload.sh
+
+/bin/bash -x /root/nginx/setup.sh
+
 }
 
 function main(){
         root_need
 
         inspect_script=$(whiptail --title "是否检查脚本" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
-        "0" "不检查更新" \
-        "1" "gitee" \
-        "2" "github"\
+        "0" "gitee" \
+        "1" "github" \
+        "2" "不检查更新"\
         "3" "退出" 3>&1 1>&2 2>&3)
         EXITSTATUS=$?
         if [ $EXITSTATUS = 0 ]; then
                 case $inspect_script in
-                0)
-                echo -e "${Green}已跳过检查更新${Font}"
-                ;;
-                1|2)
-                is_inspect_script
-                ;;
+                0|1)
+                        is_inspect_script
+                        ;;
+                2)
+                        echo -e "${Green}已跳过检查更新${Font}"
+                        ;;               
                 3)
-                exit 0
+                        exit 0
                 ;;
                 *)
-                echo -e "${Red}操作错误${Font}"
-                ;;
+                        echo -e "${Red}操作错误${Font}"
+                        ;;
                 esac
-
         else
                 exit 0
         fi
 
         echo_help
+        sleep 3
 
         OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
         "1" "手动选择安装" \
@@ -196,37 +249,42 @@ function main(){
         if [ $EXITSTATUS = 0 ]; then
                 case $OPTION in
                 1)
-                update
-                install_tools
-                if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
-                        docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
-                        install_docker
-                else
-                        echo -e "${Red}已跳过安装${Font}"
-                fi
-                if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
-                        /bin/bash add2swap.sh
-                else
-                        echo -e "${Red}已跳过安装${Font}"
-                fi
-                ;;
+                        update
+                        install_tools
+                        if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
+                                docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                install_docker
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                        fi
+                        if (whiptail --title "是否安装nginx" --yesno "是否安装nginx" --fb 15 70); then
+                                install_nginx
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                        fi
+                        if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
+                                /bin/bash add2swap.sh
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                        fi
+                        ;;
                 2)
-                update
-                install_docker
-                install_tools
-                /bin/bash add2swap.sh
-                ;;
+                        update
+                        install_docker
+                        install_tools
+                        install_nginx
+                        /bin/bash add2swap.sh
+                        ;;
                 3)
-                exit 0
-                ;;
+                        exit 0
+                        ;;
                 *)
-                echo -e "${Red}操作错误${Font}"
-                ;;
+                        echo -e "${Red}操作错误${Font}"
+                        ;;
                 esac
-
-            else
+        else
                 exit 0
-            fi
+        fi
 
 }
 
