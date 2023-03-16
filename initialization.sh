@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.2.0
+shell_version=v1.2.1
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -101,7 +101,7 @@ function update(){
                 exit 0
         fi
         
-        yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch chrony lrzsz
+        yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch chrony lrzsz tar zip unzip
 
         systemctl enable chronyd
         systemctl start chronyd
@@ -156,12 +156,12 @@ EOF
 if \$syslogtag contains 'docker' then ?docker;CleanMsgFormat
 & ~
 EOF
-systemctl restart rsyslog
+        systemctl restart rsyslog
 
-systemctl restart docker
+        systemctl restart docker
 
-curl -L https://get.daocloud.io/docker/compose/releases/download/v2.16.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
+        curl -L https://get.daocloud.io/docker/compose/releases/download/v2.16.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
 
         cat << EOF > /data/logs/docker/gzip_log.sh
 #!/bin/bash
@@ -194,17 +194,18 @@ docker run -id \
 -v \$(pwd)/config/conf.d/:/etc/nginx/conf.d/ \
 -v \$(pwd)/ssl/:/etc/nginx/ssl/ \
 -v \$(pwd)/lua/:/etc/nginx/lua/ \
--v /data/nginx/web/:/data/web/ \
--v /data/nginx/res/:/data/res/ \
--v /data/nginx/logs/nginx/:/data/logs/nginx/ \
+-v \$(pwd)/web/:/data/web/ \
+-v \$(pwd)/res/:/data/res/ \
+-v \$(pwd)/logs/nginx/:/data/logs/nginx/ \
 -v /etc/localtime:/etc/localtime:ro \
 openresty/openresty
 EOF
 
-wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O /root/nginx/config/conf.d/api.conf.bak
-wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O /root/nginx/config/conf.d/reload.sh
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O /root/nginx/config/conf.d/api.conf.bak
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O /root/nginx/config/conf.d/reload.sh
 
-/bin/bash -x /root/nginx/setup.sh
+        cd /root/nginx/
+        /bin/bash -x /root/nginx/setup.sh
 
 }
 
