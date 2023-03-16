@@ -206,6 +206,7 @@ EOF
 
         cd /root/nginx/
         /bin/bash -x /root/nginx/setup.sh
+        cd ${pwd}
 
 }
 
