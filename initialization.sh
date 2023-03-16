@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.2.1
+shell_version=v1.2.2
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -160,7 +160,7 @@ EOF
 
         systemctl restart docker
 
-        curl -L https://get.daocloud.io/docker/compose/releases/download/v2.16.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/docker-compose -O /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
 
         cat << EOF > /data/logs/docker/gzip_log.sh
