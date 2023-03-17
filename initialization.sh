@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.2.2
+shell_version=v1.2.3
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -160,7 +160,7 @@ EOF
 
         systemctl restart docker
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/docker-compose -O /usr/local/bin/docker-compose
+        wget https://gitee.com/${git_project_name}/releases/download/${shell_version}/docker-compose -O /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
 
         cat << EOF > /data/logs/docker/gzip_log.sh
@@ -183,21 +183,21 @@ function install_nginx(){
 
         wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O /root/nginx/config/nginx.conf
 
-        cat << EOF >> /root/nginx/setup.sh
-docker run -id \
---name nginx \
---restart=always \
--e LC_ALL="C.UTF-8" \
--e LANG="C.UTF-8" \
---network=host \
--v \$(pwd)/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \
--v \$(pwd)/config/conf.d/:/etc/nginx/conf.d/ \
--v \$(pwd)/ssl/:/etc/nginx/ssl/ \
--v \$(pwd)/lua/:/etc/nginx/lua/ \
--v \$(pwd)/web/:/data/web/ \
--v \$(pwd)/res/:/data/res/ \
--v \$(pwd)/logs/nginx/:/data/logs/nginx/ \
--v /etc/localtime:/etc/localtime:ro \
+        cat << EOF > /root/nginx/setup.sh
+docker run -id \\
+--name nginx \\
+--restart=always \\
+-e LC_ALL="C.UTF-8" \\
+-e LANG="C.UTF-8" \\
+--network=host \\
+-v \$(pwd)/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \\
+-v \$(pwd)/config/conf.d/:/etc/nginx/conf.d/ \\
+-v \$(pwd)/ssl/:/etc/nginx/ssl/ \\
+-v \$(pwd)/lua/:/etc/nginx/lua/ \\
+-v \$(pwd)/web/:/data/web/ \\
+-v \$(pwd)/res/:/data/res/ \\
+-v \$(pwd)/logs/nginx/:/data/logs/nginx/ \\
+-v /etc/localtime:/etc/localtime:ro \\
 openresty/openresty
 EOF
 
