@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.2.3
+shell_version=v1.3.0
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -57,6 +57,12 @@ function is_inspect_script(){
     else
         echo -e "${Green}您现在的版本是最新版${Font}"
     fi
+}
+
+#关闭防火墙
+function close_firewall(){
+        systemctl stop firewalld.service
+        systemctl disable firewalld.service
 }
 
 #更新yum包
@@ -160,7 +166,7 @@ EOF
 
         systemctl restart docker
 
-        wget https://gitee.com/${git_project_name}/releases/download/${shell_version}/docker-compose -O /usr/local/bin/docker-compose
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/docker-compose -O /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
 
         cat << EOF > /data/logs/docker/gzip_log.sh
@@ -172,8 +178,14 @@ find /data/logs/ -name `date -d "${day} days ago" +%Y-%m-%d`*.log -type f -exec 
 done
 EOF
 
+        cat << EOF > del_gz.sh 
+#!/bin/bash
+find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
+EOF
+
         cat << EOF >> /var/spool/cron/root
 0 12 * * * /bin/sh -x /data/logs/docker/gzip_log.sh
+30 12 * * * /bin/sh -x /data/logs/docker/del_gz.sh
 EOF
 }
 
@@ -210,6 +222,45 @@ EOF
 
 }
 
+#宿主机安装maven和java17
+function install_local_maven_java17(){
+        cd /usr/local/
+
+        #安装maven
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip -O /usr/local/apache-maven-3.6.3-bin.zip
+        unzip apache-maven-3.6.3-bin.zip
+        rm -f apache-maven-3.6.3-bin.zip
+        mv apache-maven-3.6.3 maven
+        export PATH=/usr/local/maven/bin:$PATH
+        mv /usr/local/maven/conf/settings.xml /usr/local/maven/conf/settings.xml.bak
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
+        wget https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
+
+        #安装java17
+        wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O /usr/local/jdk-17_linux-x64_bin.tar.gz
+        tar -zxvf jdk-17_linux-x64_bin.tar.gz
+        mv jdk-*/ java/
+        rm -f jdk-17_linux-x64_bin.tar.gz
+        cat << EOF >> /etc/profile
+
+
+#maven
+export PATH=/usr/local/maven/bin:\$PATH
+
+#java
+export JAVA_HOME=/usr/local/java
+export JRE_HOME=\${JAVA_HOME}/jre
+export CLASSPATH=.:\${JAVA_HOME}/lib:\${JRE_HOME}/lib
+export PATH=\${JAVA_HOME}/bin:\$PATH
+EOF
+
+        source /etc/profile
+        java -version
+        mvn -version
+
+        cd ${pwd}
+}
+
 function main(){
         root_need
 
@@ -241,6 +292,12 @@ function main(){
         echo_help
         sleep 3
 
+        if (whiptail --title "是否关闭防火墙" --yesno "是否关闭防火墙" --fb 15 70); then
+                close_firewall
+        else
+                echo -e "${Red}已跳过安装${Font}"
+        fi
+
         OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
         "1" "手动选择安装" \
         "2" "一键全部安装" \
@@ -253,17 +310,26 @@ function main(){
                 1)
                         update
                         install_tools
+
                         if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
                                 docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                 install_docker
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
-                        if (whiptail --title "是否安装nginx" --yesno "是否安装nginx" --fb 15 70); then
+
+                        if (whiptail --title "是否安装docker版本的nginx" --yesno "是否安装docker版本的nginx" --fb 15 70); then
                                 install_nginx
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
+
+                        if (whiptail --title "是否安装宿主机版本的maven和java17" --yesno "是否安装宿主机版本的maven和java17" --fb 15 70); then
+                                install_local_maven_java17
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                        fi
+
                         if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
                                 /bin/bash add2swap.sh
                         else
@@ -275,6 +341,7 @@ function main(){
                         install_docker
                         install_tools
                         install_nginx
+                        install_local_maven_java17
                         /bin/bash add2swap.sh
                         ;;
                 3)
