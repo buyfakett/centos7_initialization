@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 #本地脚本版本号
-shell_version=v1.3.0
+shell_version=v1.3.1
 #远程仓库作者
 git_project_author_name=buyfakett
 #远程仓库项目名
@@ -174,11 +174,11 @@ EOF
 
 for day in 1;
 do
-find /data/logs/ -name `date -d "${day} days ago" +%Y-%m-%d`*.log -type f -exec gzip {} \;
+find /data/logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
 done
 EOF
 
-        cat << EOF > del_gz.sh 
+        cat << EOF > /data/logs/docker/del_gz.sh 
 #!/bin/bash
 find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
