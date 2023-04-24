@@ -10,7 +10,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.3.2
+shell_version=v1.3.3
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
@@ -94,7 +94,7 @@ function update(){
                         yum clean all && yum makecache
                         ;;
                 3)
-                        sed -e 's|^mirrorlist=|# mirrorlist=|g' \
+                        sed -e 's|^mirrorlist=|#mirrorlist=|g' \
                         -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
                         -i.bak \
                         /etc/yum.repos.d/CentOS-*.repo
@@ -184,7 +184,7 @@ EOF
         chmod +x /usr/local/bin/docker-compose
 
         cat << EOF > /data/logs/docker/gzip_log.sh
-# !/bin/bash
+#!/bin/bash
 
 for day in 1;
 do
@@ -193,7 +193,7 @@ done
 EOF
 
         cat << EOF > /data/logs/docker/del_gz.sh 
-# !/bin/bash
+#!/bin/bash
 find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
 
@@ -334,7 +334,7 @@ function main(){
                         install_tools
 
                         if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
-                                docker_data=$(whiptail --title "# 请输入docker位置# " --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                 install_docker
                         else
                                 echo -e "${Red}已跳过安装${Font}"
