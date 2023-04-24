@@ -1,35 +1,36 @@
 #!/bin/bash
 
 pwd=$(pwd)
-#docker位置
+# docker位置
 docker_data="/data/data-docker"
 
-#颜色参数，让脚本更好看
+# 颜色参数，让脚本更好看
 Green="\033[32m"
 Font="\033[0m"
 Red="\033[31m" 
 
-#本地脚本版本号
-shell_version=v1.3.1
-#远程仓库作者
+# 本地脚本版本号
+shell_version=v1.3.2
+# 远程仓库作者
 git_project_author_name=buyfakett
-#远程仓库项目名
+# 远程仓库项目名
 git_project_project_name=centos7_initialization
-#远程仓库名
+# 远程仓库名
 git_project_name=${git_project_author_name}/${git_project_project_name}
 
-#打印帮助文档
+# 打印帮助文档
 function echo_help(){
     echo -e "${Green}
     ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-    #脚本是为了初始化centos7而准备的
-    #脚本不是很成熟，有bug请及时在github反馈哦~
-    #或者发作者邮箱：buyfakett@vip.qq.com
+    # 脚本是为了初始化centos7而准备的
+    # 本脚本集成了关闭防火墙、换源、更新yum包、docker、nginx、maven、java17、node.js、生成两倍虚拟内存
+    # 脚本不是很成熟，有bug请及时在github反馈哦~
+    # 或者发作者邮箱：buyfakett@vip.qq.com
     ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
     ${Font}"
 }
 
-#root权限
+# root权限
 function root_need(){
     if [[ $EUID -ne 0 ]]; then
         echo -e "${Red}你现在不是root权限，请使用sudo命令或者联系网站管理员${Font}"
@@ -37,7 +38,7 @@ function root_need(){
     fi
 }
 
-#检查版本
+# 检查版本
 function is_inspect_script(){
     yum install -y wget jq
     echo -e "${Green}您已开始检查版本${Font}"
@@ -59,13 +60,13 @@ function is_inspect_script(){
     fi
 }
 
-#关闭防火墙
+# 关闭防火墙
 function close_firewall(){
         systemctl stop firewalld.service
         systemctl disable firewalld.service
 }
 
-#更新yum包
+# 更新yum包
 function update(){
         yum install -y wget whiptail
         cd /etc/yum.repos.d
@@ -93,7 +94,7 @@ function update(){
                         yum clean all && yum makecache
                         ;;
                 3)
-                        sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+                        sed -e 's|^mirrorlist=|# mirrorlist=|g' \
                         -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
                         -i.bak \
                         /etc/yum.repos.d/CentOS-*.repo
@@ -107,7 +108,8 @@ function update(){
                 exit 0
         fi
         
-        yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch chrony lrzsz tar zip unzip
+        yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch \
+         chrony lrzsz tar zip unzip gcc-c++ pcre pcre-devel zlib zlib-devel openssl openssl--devel
 
         systemctl enable chronyd
         systemctl start chronyd
@@ -117,25 +119,37 @@ function update(){
         cd ${pwd}
 }
 
-#安装工具
+# 安装工具
 function install_tools(){
         wget https://gitee.com/${git_project_name}/raw/master/download_file/add2swap.sh
 }
 
-#下载docker
+# 下载docker
 function install_docker(){
+        mkdir -p /data/docker
+        
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
         sed -i 's/#$ModLoad imtcp/$ModLoad imtcp/g' /etc/rsyslog.conf
         sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
         systemctl restart rsyslog
 
-        cat << EOF > /etc/yum.repos.d/docker-ce.repo
-[dockerCe]
-name=dockerCe
-baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7.9/x86_64/stable
-gpgcheck=0
-enabled=1
-EOF
+#         cat << EOF > /etc/yum.repos.d/docker-ce.repo
+# [dockerCe]
+# name=dockerCe
+# baseurl=https://mirrors.aliyun.com/docker-ce/linux/centos/7.9/x86_64/stable
+# gpgcheck=0
+# enabled=1
+# EOF
+        
+        cd /etc/yum.repos.d
+        [ -f CentOS7-Base-163.repo ] || wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
+        [ -f Centos-7.repo ] || wget http://mirrors.aliyun.com/repo/Centos-7.repo
+        [ -f epel-testing.repo ] || wget http://mirrors.aliyun.com/repo/epel-testing.repo
+        [ -f epel-7.repo ] || wget http://mirrors.aliyun.com/repo/epel-7.repo
+        [ -f epel.repo ] || wget http://mirrors.aliyun.com/repo/epel.repo
+        yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+        cd ${pwd}
+
         yum makecache
         yum -y install docker-ce docker-ce-cli containerd.io && systemctl start docker && systemctl enable docker
 
@@ -170,7 +184,7 @@ EOF
         chmod +x /usr/local/bin/docker-compose
 
         cat << EOF > /data/logs/docker/gzip_log.sh
-#!/bin/bash
+# !/bin/bash
 
 for day in 1;
 do
@@ -179,7 +193,7 @@ done
 EOF
 
         cat << EOF > /data/logs/docker/del_gz.sh 
-#!/bin/bash
+# !/bin/bash
 find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
 
@@ -189,7 +203,7 @@ EOF
 EOF
 }
 
-#安装nginx
+# 安装nginx
 function install_nginx(){
         mkdir -p /root/nginx/config/conf.d/
 
@@ -222,11 +236,11 @@ EOF
 
 }
 
-#宿主机安装maven和java17
+# 宿主机安装maven和java17
 function install_local_maven_java17(){
         cd /usr/local/
 
-        #安装maven
+        # 安装maven
         wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip -O /usr/local/apache-maven-3.6.3-bin.zip
         unzip apache-maven-3.6.3-bin.zip
         rm -f apache-maven-3.6.3-bin.zip
@@ -236,7 +250,7 @@ function install_local_maven_java17(){
         wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
         wget https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
 
-        #安装java17
+        # 安装java17
         wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O /usr/local/jdk-17_linux-x64_bin.tar.gz
         tar -zxvf jdk-17_linux-x64_bin.tar.gz
         mv jdk-*/ java/
@@ -244,10 +258,10 @@ function install_local_maven_java17(){
         cat << EOF >> /etc/profile
 
 
-#maven
+# maven
 export PATH=/usr/local/maven/bin:\$PATH
 
-#java
+# java
 export JAVA_HOME=/usr/local/java
 export JRE_HOME=\${JAVA_HOME}/jre
 export CLASSPATH=.:\${JAVA_HOME}/lib:\${JRE_HOME}/lib
@@ -259,6 +273,14 @@ EOF
         mvn -version
 
         cd ${pwd}
+}
+
+# 安装node.js
+function install_nodejs(){
+        curl -sL https://rpm.nodesource.com/setup_14.x | bash -
+        yum install nodejs
+        node -v
+        npm -v
 }
 
 function main(){
@@ -312,7 +334,7 @@ function main(){
                         install_tools
 
                         if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
-                                docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                docker_data=$(whiptail --title "# 请输入docker位置# " --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                 install_docker
                         else
                                 echo -e "${Red}已跳过安装${Font}"
@@ -330,6 +352,12 @@ function main(){
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
+                        if (whiptail --title "是否安装node.js" --yesno "是否安装node.js" --fb 15 70); then
+                                install_nodejs
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                        fi
+
                         if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
                                 /bin/bash add2swap.sh
                         else
@@ -342,6 +370,7 @@ function main(){
                         install_tools
                         install_nginx
                         install_local_maven_java17
+                        install_nodejs
                         /bin/bash add2swap.sh
                         ;;
                 3)
