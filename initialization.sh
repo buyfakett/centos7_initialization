@@ -2,7 +2,9 @@
 
 pwd=$(pwd)
 # docker位置
-docker_data="/data/data-docker"
+docker_data_site="/data/data-docker"
+# 本地版nginx快捷位置
+loacl_nginx_site="/root/nginx"
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -10,7 +12,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.3.3
+shell_version=v1.4.0
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
@@ -20,44 +22,44 @@ git_project_name=${git_project_author_name}/${git_project_project_name}
 
 # 打印帮助文档
 function echo_help(){
-    echo -e "${Green}
-    ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-    # 脚本是为了初始化centos7而准备的
-    # 本脚本集成了关闭防火墙、换源、更新yum包、docker、nginx、maven、java17、node.js、生成两倍虚拟内存
-    # 脚本不是很成熟，有bug请及时在github反馈哦~
-    # 或者发作者邮箱：buyfakett@vip.qq.com
-    ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-    ${Font}"
+        echo -e "${Green}
+        ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        # 脚本是为了初始化centos7而准备的
+        # 本脚本集成了关闭防火墙、换源、更新yum包、docker、nginx、maven、java17、node.js、python3、生成两倍虚拟内存
+        # 脚本不是很成熟，有bug请及时在github反馈哦~
+        # 或者发作者邮箱：buyfakett@vip.qq.com
+        ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        ${Font}"
 }
 
 # root权限
 function root_need(){
-    if [[ $EUID -ne 0 ]]; then
-        echo -e "${Red}你现在不是root权限，请使用sudo命令或者联系网站管理员${Font}"
-        exit 1
-    fi
+        if [[ $EUID -ne 0 ]]; then
+                echo -e "${Red}你现在不是root权限，请使用sudo命令或者联系网站管理员${Font}"
+                exit 1
+        fi
 }
 
 # 检查版本
 function is_inspect_script(){
-    yum install -y wget jq
-    echo -e "${Green}您已开始检查版本${Font}"
+        yum install -y wget jq
+        echo -e "${Green}您已开始检查版本${Font}"
 
-    if [ $inspect_script == 1 ];then
-        remote_version=$(wget -qO- -t1 -T2 "https://gitee.com/api/v5/repos/${git_project_name}/releases/latest" |  jq -r '.tag_name')
-    elif [ $inspect_script == 2 ];then
-        remote_version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/${git_project_name}/releases/latest" |  jq -r '.tag_name')
-    fi
-
-    if [ ! "${remote_version}"x = "${shell_version}"x ];then
         if [ $inspect_script == 1 ];then
-            bash <( curl -s -S -L "https://gitee.com/${git_project_name}/raw/master/$(basename $0)" )
+                remote_version=$(wget -qO- -t1 -T2 "https://gitee.com/api/v5/repos/${git_project_name}/releases/latest" |  jq -r '.tag_name')
         elif [ $inspect_script == 2 ];then
-            bash <( curl -s -S -L "https://github.com/${git_project_name}/raw/master/$(basename $0)" )
+                remote_version=$(wget -qO- -t1 -T2 "https://api.github.com/repos/${git_project_name}/releases/latest" |  jq -r '.tag_name')
         fi
-    else
-        echo -e "${Green}您现在的版本是最新版${Font}"
-    fi
+
+        if [ ! "${remote_version}"x = "${shell_version}"x ];then
+                if [ $inspect_script == 1 ];then
+                        bash <( curl -s -S -L "https://gitee.com/${git_project_name}/raw/master/$(basename $0)" )
+                elif [ $inspect_script == 2 ];then
+                        bash <( curl -s -S -L "https://github.com/${git_project_name}/raw/master/$(basename $0)" )
+                fi
+        else
+                echo -e "${Green}您现在的版本是最新版${Font}"
+        fi
 }
 
 # 关闭防火墙
@@ -67,7 +69,7 @@ function close_firewall(){
 }
 
 # 更新yum包
-function update(){
+function update_packages(){
         yum install -y wget whiptail
         cd /etc/yum.repos.d
 
@@ -158,7 +160,7 @@ function install_docker(){
   "registry-mirrors": [
     "https://pee6w651.mirror.aliyuncs.com"
   ],
-  "data-root": "${docker_data}",
+  "data-root": "${docker_data_site}",
   "log-driver": "syslog",
   "log-opts": {
     "syslog-address": "tcp://127.0.0.1:514",
@@ -203,8 +205,66 @@ EOF
 EOF
 }
 
-# 安装nginx
-function install_nginx(){
+#安装本地版的nginx
+function install_local_nginx(){
+        mkdir -p ${loacl_nginx_site}
+        yum install -y yum-utils logrotate
+
+        yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo
+        yum install openresty -y
+
+        ln -s /usr/local/openresty/nginx/conf /root/nginx
+
+        mkdir -p ${loacl_nginx_site}/conf/conf.d
+        mkdir -p ${loacl_nginx_site}/web
+        mkdir -p ${loacl_nginx_site}/ssl
+        mkdir -p ${loacl_nginx_site}/res
+        mkdir -p ${loacl_nginx_site}/lua
+        mkdir -p ${loacl_nginx_site}/logs
+        chmod -R 755 ${loacl_nginx_site}/logs
+
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx_local.conf -O /usr/local/openresty/nginx/conf/nginx.conf
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${loacl_nginx_site}/conf/conf.d/api.conf.bak
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${loacl_nginx_site}/conf/conf.d/reload.sh
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${loacl_nginx_site}/conf/conf.d/index.conf
+
+        sed -i 's/access_log /root/nginx/logs/nginx.log main;/access_log ${loacl_nginx_site}/logs/nginx.log main;/g' /usr/local/openresty/nginx/conf/nginx.conf
+
+        cat << EOF > ${loacl_nginx_site}/nginx_log.sh
+#!/bin/bash
+now_date=`date +%Y-%m-%d`
+cp logs/nginx.log logs/nginx-\${now_date}.log && echo "" > logs/nginx.log
+EOF
+
+        cat << EOF > ${loacl_nginx_site}/gzip_log.sh
+#!/bin/bash
+
+for day in 1;
+do
+find logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
+done
+EOF
+
+
+        cat << EOF > ${loacl_nginx_site}/del_gz.sh 
+#!/bin/bash
+find logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
+EOF
+
+        cat << EOF >> /var/spool/cron/root
+0 0 * * * /bin/sh -x /root/nginx/nginx_log.sh
+0 12 * * * /bin/sh -x /root/nginx/gzip_log.sh
+30 12 * * * /bin/sh -x /root/nginx/del_gz.sh
+EOF
+
+        systemctl start openresty
+        systemctl enable openresty
+
+        cd ${pwd}
+}
+
+# 安装docker版本的nginx
+function install_docker_nginx(){
         mkdir -p /root/nginx/config/conf.d/
 
         wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O /root/nginx/config/nginx.conf
@@ -278,9 +338,16 @@ EOF
 # 安装node.js
 function install_nodejs(){
         curl -sL https://rpm.nodesource.com/setup_14.x | bash -
-        yum install nodejs
+        yum install nodejs -y
         node -v
         npm -v
+}
+
+# 安装python3
+function install_python3(){
+yum install -y epel-release python3 python3-devel
+python3 --version
+pip3 --version
 }
 
 function main(){
@@ -302,7 +369,7 @@ function main(){
                         ;;               
                 3)
                         exit 0
-                ;;
+                        ;;
                 *)
                         echo -e "${Red}操作错误${Font}"
                         ;;
@@ -322,7 +389,7 @@ function main(){
 
         OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
         "1" "手动选择安装" \
-        "2" "一键全部安装" \
+        "2" "一键全部安装（安装docker版本nginx）" \
         "3" "退出" 3>&1 1>&2 2>&3)
 
         EXITSTATUS=$?
@@ -330,20 +397,42 @@ function main(){
         if [ $EXITSTATUS = 0 ]; then
                 case $OPTION in
                 1)
-                        update
+                        update_packages
                         install_tools
 
                         if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
-                                docker_data=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                 install_docker
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
-                        if (whiptail --title "是否安装docker版本的nginx" --yesno "是否安装docker版本的nginx" --fb 15 70); then
-                                install_nginx
+                        NGINX_OPTION=$(whiptail --title "安装什么版本的nginx/不安装" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                        "1" "安装docker版本的nginx" \
+                        "2" "安装local版本的nginx" \
+                        "3" "不安装nginx" \
+                        "4" "退出" 3>&1 1>&2 2>&3)
+
+                        NGINX_EXITSTATUS=$?
+
+                        if [ $NGINX_EXITSTATUS = 0 ]; then
+                                case $NGINX_OPTION in
+                                1)
+                                        install_docker_nginx
+                                        ;;
+                                2)
+                                        loacl_nginx_site=$(whiptail --title "#请输入本地版nginx位置#" --inputbox "本地版nginx默认位置有点深，推荐创建快捷方式到自己熟系的位置" 10 60 "${loacl_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                        install_local_nginx
+                                        ;;
+                                3)
+                                        echo -e "${Red}已跳过安装${Font}"
+                                        ;;
+                                *)
+                                        echo -e "${Red}操作错误${Font}"
+                                        ;;
+                                esac
                         else
-                                echo -e "${Red}已跳过安装${Font}"
+                                exit 0
                         fi
 
                         if (whiptail --title "是否安装宿主机版本的maven和java17" --yesno "是否安装宿主机版本的maven和java17" --fb 15 70); then
@@ -358,6 +447,12 @@ function main(){
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
+                        if (whiptail --title "是否安装python3" --yesno "是否安装python3" --fb 15 70); then
+                                install_python3
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                        fi
+
                         if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
                                 /bin/bash add2swap.sh
                         else
@@ -365,12 +460,13 @@ function main(){
                         fi
                         ;;
                 2)
-                        update
+                        update_packages
                         install_docker
                         install_tools
-                        install_nginx
+                        install_docker_nginx
                         install_local_maven_java17
                         install_nodejs
+                        install_python3
                         /bin/bash add2swap.sh
                         ;;
                 3)
@@ -383,6 +479,8 @@ function main(){
         else
                 exit 0
         fi
+
+        echo -e "${Green}执行完此脚本后，最好执行重启命令，因为关闭了SElinux，需要重启服务器才生效${Font}"
 
 }
 
