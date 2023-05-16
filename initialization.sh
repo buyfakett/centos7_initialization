@@ -12,7 +12,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.4.0
+shell_version=v1.4.1
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
@@ -199,10 +199,14 @@ EOF
 find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
 
+        chmod +x /data/logs/docker/del_gz.sh /data/logs/docker/gzip_log.sh
+
         cat << EOF >> /var/spool/cron/root
 0 12 * * * /bin/sh -x /data/logs/docker/gzip_log.sh
 30 12 * * * /bin/sh -x /data/logs/docker/del_gz.sh
 EOF
+
+        cd ${pwd}
 }
 
 #安装本地版的nginx
@@ -232,8 +236,8 @@ function install_local_nginx(){
 
         cat << EOF > ${loacl_nginx_site}/nginx_log.sh
 #!/bin/bash
-now_date=`date +%Y-%m-%d`
-cp logs/nginx.log logs/nginx-\${now_date}.log && echo "" > logs/nginx.log
+now_date=\`date +%Y-%m-%d\`
+cat ${loacl_nginx_site}/logs/nginx.log > ${loacl_nginx_site}/logs/nginx-\${now_date}.log && > ${loacl_nginx_site}/logs/nginx.log
 EOF
 
         cat << EOF > ${loacl_nginx_site}/gzip_log.sh
@@ -241,15 +245,17 @@ EOF
 
 for day in 1;
 do
-find logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
+find ${loacl_nginx_site}/logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
 done
 EOF
 
 
         cat << EOF > ${loacl_nginx_site}/del_gz.sh 
 #!/bin/bash
-find logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
+find ${loacl_nginx_site}/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
+
+        chmod +x ${loacl_nginx_site}/del_gz.sh ${loacl_nginx_site}/gzip_log.sh ${loacl_nginx_site}/nginx_log.sh
 
         cat << EOF >> /var/spool/cron/root
 0 0 * * * /bin/sh -x /root/nginx/nginx_log.sh
@@ -282,7 +288,7 @@ docker run -id \\
 -v \$(pwd)/lua/:/etc/nginx/lua/ \\
 -v \$(pwd)/web/:/data/web/ \\
 -v \$(pwd)/res/:/data/res/ \\
--v \$(pwd)/logs/nginx/:/data/logs/nginx/ \\
+-v \$(pwd)/logs/:/data/logs/nginx/ \\
 -v /etc/localtime:/etc/localtime:ro \\
 openresty/openresty
 EOF
@@ -341,13 +347,17 @@ function install_nodejs(){
         yum install nodejs -y
         node -v
         npm -v
+
+        cd ${pwd}
 }
 
 # 安装python3
 function install_python3(){
-yum install -y epel-release python3 python3-devel
-python3 --version
-pip3 --version
+        yum install -y epel-release python3 python3-devel
+        python3 --version
+        pip3 --version
+
+        cd ${pwd}
 }
 
 function main(){
@@ -479,6 +489,8 @@ function main(){
         else
                 exit 0
         fi
+
+        rm -f add2swap.sh
 
         echo -e "${Green}执行完此脚本后，最好执行重启命令，因为关闭了SElinux，需要重启服务器才生效${Font}"
 
