@@ -12,7 +12,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.4.1
+shell_version=v1.4.2
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
@@ -236,7 +236,7 @@ function install_local_nginx(){
 
         cat << EOF > ${loacl_nginx_site}/nginx_log.sh
 #!/bin/bash
-now_date=\`date +%Y-%m-%d\`
+now_date=\`date -d '-1 day' +%Y-%m-%d\`
 cat ${loacl_nginx_site}/logs/nginx.log > ${loacl_nginx_site}/logs/nginx-\${now_date}.log && > ${loacl_nginx_site}/logs/nginx.log
 EOF
 
@@ -255,7 +255,7 @@ EOF
 find ${loacl_nginx_site}/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
 
-        chmod +x ${loacl_nginx_site}/del_gz.sh ${loacl_nginx_site}/gzip_log.sh ${loacl_nginx_site}/nginx_log.sh
+        chmod +x ${loacl_nginx_site}/del_gz.sh ${loacl_nginx_site}/gzip_log.sh ${loacl_nginx_site}/nginx_log.sh ${loacl_nginx_site}/conf/conf.d/reload.sh
 
         cat << EOF >> /var/spool/cron/root
 0 0 * * * /bin/sh -x /root/nginx/nginx_log.sh
@@ -297,7 +297,9 @@ EOF
         wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O /root/nginx/config/conf.d/reload.sh
 
         cd /root/nginx/
+        chmod +x /root/nginx/setup.sh /root/nginx/config/conf.d/reload.sh
         /bin/bash -x /root/nginx/setup.sh
+
         cd ${pwd}
 
 }
