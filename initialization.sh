@@ -12,7 +12,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.4.2
+shell_version=v1.4.3
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
@@ -30,6 +30,41 @@ function echo_help(){
         # 或者发作者邮箱：buyfakett@vip.qq.com
         ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         ${Font}"
+}
+
+# 判断系统
+function Inspection_system(){
+        # 获取发行版信息
+        distro=$(cat /etc/*-release | grep -w "ID" | awk -F '=' '{print $2}' | tr -d '"')
+        # 获取操作系统版本
+        os_version=$(cat /etc/centos-release | grep -oE '[0-9]+\.[0-9]+' | cut -d'.' -f1)
+
+        case "$distro" in
+        "centos")
+                if [[ $os_version -eq 7 ]]; then
+                        main
+                else
+                        if (whiptail --title "当前系统不是CentOS 7.*版本，是否继续安装" --yesno "当前系统不是CentOS 7.*版本，是否继续安装" --fb 15 70); then
+                                main
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                                exit 0
+                        fi
+                fi
+                ;;
+        "ubuntu")
+                echo "本脚本是为centos7设计的，当前系统是：Ubuntu"
+                exit 1
+                ;;
+        "fedora")
+                echo "本脚本是为centos7设计的，当前系统是：Fedora"
+                exit 1
+                ;;
+        *)
+                echo "本脚本是为centos7设计的，当前系统是：$distro"
+                exit 1
+                ;;
+        esac   
 }
 
 # root权限
@@ -131,6 +166,7 @@ function install_docker(){
         mkdir -p /data/docker
         
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+        sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux
         sed -i 's/#$ModLoad imtcp/$ModLoad imtcp/g' /etc/rsyslog.conf
         sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
         systemctl restart rsyslog
@@ -498,4 +534,4 @@ function main(){
 
 }
 
-main
+Inspection_system
