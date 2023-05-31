@@ -15,7 +15,7 @@ vim 脚本名
 ```
 可以使用以下命令直接执行
 ```bash
-wget https://gitee.com/buyfakett/centos7_initialization/raw/master/initialization.sh && bash initialization.sh
+curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && bash initialization.sh
 ```
 
 脚本不是很成熟，有bug请及时在github反馈哦~ 或者发作者邮箱：buyfakett@vip.qq.com
