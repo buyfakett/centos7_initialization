@@ -1,6 +1,6 @@
 #  centos7_initialization
 
-![GitHub release](https://img.shields.io/github/release/buyfakett/centos7_initialization.svg?logo=github&style=flat-square) ![GitHub release downloads](https://img.shields.io/github/downloads/buyfakett/centos7_initialization/total?logo=github)![codacy](https://img.shields.io/badge/codacy-S-/total?logo=github)
+![GitHub release](https://img.shields.io/github/release/buyfakett/centos7_initialization.svg?logo=github&style=flat-square) ![GitHub release downloads](https://img.shields.io/github/downloads/buyfakett/centos7_initialization/total?logo=github) ![codacy](https://img.shields.io/badge/codacy-S-/total?logo=github) 
 
 初始化centos7用的脚本
 
