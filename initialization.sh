@@ -12,7 +12,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.4.3
+shell_version=v1.4.4
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
@@ -281,7 +281,7 @@ EOF
 
 for day in 1;
 do
-find ${loacl_nginx_site}/logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
+find ${loacl_nginx_site}/logs/ -name nginx-\`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
 done
 EOF
 
@@ -445,6 +445,7 @@ function main(){
         if [ $EXITSTATUS = 0 ]; then
                 case $OPTION in
                 1)
+                        setenforce 0
                         update_packages
                         install_tools
 
@@ -508,6 +509,7 @@ function main(){
                         fi
                         ;;
                 2)
+                        setenforce 0
                         update_packages
                         install_docker
                         install_tools
