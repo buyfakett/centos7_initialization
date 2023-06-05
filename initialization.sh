@@ -451,7 +451,7 @@ function main(){
 
                         if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
                                 docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
-                                install_docker
+                                install_docker_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
@@ -467,11 +467,11 @@ function main(){
                         if [ $NGINX_EXITSTATUS = 0 ]; then
                                 case $NGINX_OPTION in
                                 1)
-                                        install_docker_nginx
+                                        install_docker_nginx_evn=1
                                         ;;
                                 2)
                                         loacl_nginx_site=$(whiptail --title "#请输入本地版nginx位置#" --inputbox "本地版nginx默认位置有点深，推荐创建快捷方式到自己熟系的位置" 10 60 "${loacl_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
-                                        install_local_nginx
+                                        install_docker_nginx_evn=1
                                         ;;
                                 3)
                                         echo -e "${Red}已跳过安装${Font}"
@@ -485,28 +485,35 @@ function main(){
                         fi
 
                         if (whiptail --title "是否安装宿主机版本的maven和java17" --yesno "是否安装宿主机版本的maven和java17" --fb 15 70); then
-                                install_local_maven_java17
+                                install_local_maven_java17_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
                         if (whiptail --title "是否安装node.js" --yesno "是否安装node.js" --fb 15 70); then
-                                install_nodejs
+                                install_nodejs_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
                         if (whiptail --title "是否安装python3" --yesno "是否安装python3" --fb 15 70); then
-                                install_python3
+                                install_python3_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
                         if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
-                                /bin/bash add2swap.sh
+                                add2swap_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
+
+                        [ "$install_docker_evn" ] && install_docker
+                        [ "$install_docker_nginx_evn" ] && install_docker_nginx
+                        [ "$install_local_maven_java17_evn" ] && install_local_maven_java17
+                        [ "$install_nodejs_evn" ] && install_nodejs
+                        [ "$install_python3_evn" ] && install_python3
+                        [ "$add2swap_evn" ] && /bin/bash add2swap.sh
                         ;;
                 2)
                         setenforce 0
