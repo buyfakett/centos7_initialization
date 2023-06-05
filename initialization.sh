@@ -99,8 +99,7 @@ function is_inspect_script(){
 
 # 关闭防火墙
 function close_firewall(){
-        systemctl stop firewalld.service
-        systemctl disable firewalld.service
+        systemctl disable firewalld.service --now
 }
 
 # 更新yum包
@@ -148,8 +147,7 @@ function update_packages(){
         yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch \
          chrony lrzsz tar zip unzip gcc-c++ pcre pcre-devel zlib zlib-devel openssl openssl--devel
 
-        systemctl enable chronyd
-        systemctl start chronyd
+        systemctl enable chronyd --now
 
         yum update -y
 
@@ -189,7 +187,7 @@ function install_docker(){
         cd ${pwd}
 
         yum makecache
-        yum -y install docker-ce docker-ce-cli containerd.io && systemctl start docker && systemctl enable docker
+        yum -y install docker-ce docker-ce-cli containerd.io && systemctl enable docker --now
 
         cat << EOF > /etc/docker/daemon.json
 {
@@ -299,8 +297,7 @@ EOF
 30 12 * * * /bin/sh -x /root/nginx/del_gz.sh
 EOF
 
-        systemctl start openresty
-        systemctl enable openresty
+        systemctl enable openresty --now
 
         cd ${pwd}
 }
