@@ -349,7 +349,6 @@ function install_local_maven_java17(){
         export PATH=/usr/local/maven/bin:$PATH
         mv /usr/local/maven/conf/settings.xml /usr/local/maven/conf/settings.xml.bak
         wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
-        wget https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
 
         # 安装java17
         wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O /usr/local/jdk-17_linux-x64_bin.tar.gz

@@ -78,12 +78,15 @@ function start(){
         unzip nodejs.zip
         unzip other.zip
         unzip python3.zip
+        unzip openresty.zip
         unzip -d docker docker1.zip
         unzip -d docker docker2.zip
-        rm -f nodejs.zip other.zip python3.zip docker1.zip docker2.zip
+        rm -f nodejs.zip other.zip python3.zip docker1.zip docker2.zip openresty.zip
         cd ..
         unzip download_file.zip
         rm -f download_file.zip
+        yum localinstall download_file/rpm/other/*.rpm 
+        cd ${pwd}
 }
 
 # 下载docker
@@ -96,9 +99,7 @@ function install_docker(){
         sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
         systemctl restart rsyslog
 
-        yum makecache
-        yum -y install docker-ce docker-ce-cli containerd.io && systemctl start docker && systemctl enable docker
-        yum localinstall ./*.rpm -y && systemctl enable docker --now
+        yum localinstall download_file/rpm/docker/*.rpm -y && systemctl enable docker --now
 
         cat << EOF > /etc/docker/daemon.json
 {
@@ -127,7 +128,7 @@ EOF
 
         systemctl restart docker
 
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/docker-compose -O /usr/local/bin/docker-compose
+        cp download_file/docker-compose /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
 
         cat << EOF > /data/logs/docker/gzip_log.sh
@@ -157,10 +158,8 @@ EOF
 #安装本地版的nginx
 function install_local_nginx(){
         mkdir -p ${loacl_nginx_site}
-        yum install -y yum-utils logrotate
 
-        yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo
-        yum install openresty -y
+        yum localinstall download_file/rpm/openresty/*.rpm -y
 
         ln -s /usr/local/openresty/nginx/conf /root/nginx
 
@@ -172,10 +171,10 @@ function install_local_nginx(){
         mkdir -p ${loacl_nginx_site}/logs
         chmod -R 755 ${loacl_nginx_site}/logs
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx_local.conf -O /usr/local/openresty/nginx/conf/nginx.conf
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${loacl_nginx_site}/conf/conf.d/api.conf.bak
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${loacl_nginx_site}/conf/conf.d/reload.sh
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${loacl_nginx_site}/conf/conf.d/index.conf
+        cp download_file/nginx_local.conf /usr/local/openresty/nginx/conf/nginx.conf
+        cp download_file/api.conf.bak ${loacl_nginx_site}/conf/conf.d/api.conf.bak
+        cp download_file/reload_local.sh ${loacl_nginx_site}/conf/conf.d/reload.sh
+        cp download_file/local_nginx_index.conf ${loacl_nginx_site}/conf/conf.d/index.conf
 
         sed -i 's/access_log /root/nginx/logs/nginx.log main;/access_log ${loacl_nginx_site}/logs/nginx.log main;/g' /usr/local/openresty/nginx/conf/nginx.conf
 
@@ -208,8 +207,7 @@ EOF
 30 12 * * * /bin/sh -x /root/nginx/del_gz.sh
 EOF
 
-        systemctl start openresty
-        systemctl enable openresty
+        systemctl enable openresty --now
 
         cd ${pwd}
 }
@@ -218,7 +216,7 @@ EOF
 function install_docker_nginx(){
         mkdir -p /root/nginx/config/conf.d/
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O /root/nginx/config/nginx.conf
+        cp download_file/nginx.conf /root/nginx/config/nginx.conf
 
         cat << EOF > /root/nginx/setup.sh
 docker run -id \\
@@ -238,8 +236,8 @@ docker run -id \\
 openresty/openresty
 EOF
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O /root/nginx/config/conf.d/api.conf.bak
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O /root/nginx/config/conf.d/reload.sh
+        cp download_file/api.conf.bak /root/nginx/config/conf.d/api.conf.bak
+        cp download_file/reload.sh /root/nginx/config/conf.d/reload.sh
 
         cd /root/nginx/
         chmod +x /root/nginx/setup.sh /root/nginx/config/conf.d/reload.sh
@@ -251,20 +249,16 @@ EOF
 
 # 宿主机安装maven和java17
 function install_local_maven_java17(){
-        cd /usr/local/
 
         # 安装maven
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip -O /usr/local/apache-maven-3.6.3-bin.zip
-        unzip apache-maven-3.6.3-bin.zip
-        rm -f apache-maven-3.6.3-bin.zip
-        mv apache-maven-3.6.3 maven
+        cp -R download_file/apache-maven-3.6.3 /usr/local/maven
         export PATH=/usr/local/maven/bin:$PATH
         mv /usr/local/maven/conf/settings.xml /usr/local/maven/conf/settings.xml.bak
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
-        wget https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
+        cp download_file/settings.xml /usr/local/maven/conf/settings.xml
 
         # 安装java17
-        wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O /usr/local/jdk-17_linux-x64_bin.tar.gz
+        cp download_file/jdk-17_linux-x64_bin.tar.gz /usr/local/jdk-17_linux-x64_bin.tar.gz
+        cd /usr/local/
         tar -zxvf jdk-17_linux-x64_bin.tar.gz
         mv jdk-*/ java/
         rm -f jdk-17_linux-x64_bin.tar.gz
@@ -290,8 +284,7 @@ EOF
 
 # 安装node.js
 function install_nodejs(){
-        curl -sL https://rpm.nodesource.com/setup_14.x | bash -
-        yum install nodejs -y
+        yum localinstall download_file/rpm/nodejs/*.rpm -y
         node -v
         npm -v
 
@@ -300,7 +293,7 @@ function install_nodejs(){
 
 # 安装python3
 function install_python3(){
-        yum install -y epel-release python3 python3-devel
+        yum localinstall download_file/rpm/python3/*.rpm -y
         python3 --version
         pip3 --version
 
@@ -309,35 +302,6 @@ function install_python3(){
 
 function main(){
         root_need
-        close_firewall
-        start
-
-
-        inspect_script=$(whiptail --title "是否检查脚本" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
-        "0" "gitee" \
-        "1" "github" \
-        "2" "不检查更新"\
-        "3" "退出" 3>&1 1>&2 2>&3)
-        EXITSTATUS=$?
-        if [ $EXITSTATUS = 0 ]; then
-                case $inspect_script in
-                0|1)
-                        is_inspect_script
-                        ;;
-                2)
-                        echo -e "${Green}已跳过检查更新${Font}"
-                        ;;               
-                3)
-                        exit 0
-                        ;;
-                *)
-                        echo -e "${Red}操作错误${Font}"
-                        ;;
-                esac
-        else
-                exit 0
-        fi
-
         echo_help
         sleep 3
 
@@ -346,6 +310,8 @@ function main(){
         else
                 echo -e "${Red}已跳过安装${Font}"
         fi
+
+        start
 
         OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
         "1" "手动选择安装" \
