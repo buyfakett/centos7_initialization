@@ -12,7 +12,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.4.4
+shell_version=v1.5.0
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名

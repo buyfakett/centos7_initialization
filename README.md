@@ -6,7 +6,7 @@
 
 * [问题](#问题)
 
-* [安装](#安装)
+* [安装网络版本](#安装网络版本)
 
 * [安装测试版本](#安装测试版本)
 * [支持](#支持)
@@ -22,7 +22,7 @@ vim 脚本名
 
 :x
 ```
-### 安装
+### 安装网络版本
 
 可以使用以下命令直接执行
 
@@ -36,6 +36,17 @@ wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.
 # 方法3：克隆到本地
 git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
 ```
+
+### 安装本地版本
+
+```bash
+# 方法1：在发行版下载压缩包，安装
+
+# 方法2：克隆到本地
+git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
+```
+
+
 
 ### 支持安装测试版本
 
