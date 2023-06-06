@@ -8,6 +8,8 @@
 
 * [安装网络版本](#安装网络版本)
 
+* [安装本地版本](#安装本地版本)
+
 * [安装测试版本](#安装测试版本)
 * [支持](#支持)
 
@@ -40,10 +42,10 @@ git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_i
 ### 安装本地版本
 
 ```bash
-# 方法1：在发行版下载压缩包，安装
+# 方法1：在发行版下载压缩包，安装（发行版只在github）
 
 # 方法2：克隆到本地
-git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
+git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
 ```
 
 
