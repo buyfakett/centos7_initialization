@@ -43,7 +43,7 @@ git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_i
 
 ```bash
 # 方法1：在发行版下载压缩包，安装（发行版只在github）
-
+https://github.com/buyfakett/centos7_initialization/releases
 # 方法2：克隆到本地
 git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
 ```
