@@ -266,7 +266,7 @@ function install_local_nginx(){
         wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${loacl_nginx_site}/conf/conf.d/reload.sh
         wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${loacl_nginx_site}/conf/conf.d/index.conf
 
-        sed -i 's/access_log /root/nginx/logs/nginx.log main;/access_log ${loacl_nginx_site}/logs/nginx.log main;/g' /usr/local/openresty/nginx/conf/nginx.conf
+        sed -i "s/access_log \/root\/nginx\/logs\/nginx.log main;/access_log \${loacl_nginx_site}\/logs\/nginx.log main;/g" /usr/local/openresty/nginx/conf/nginx.conf
 
         cat << EOF > ${loacl_nginx_site}/nginx_log.sh
 #!/bin/bash
