@@ -4,7 +4,7 @@ pwd=$(pwd)
 # docker位置
 docker_data_site="/data/data-docker"
 # 本地版nginx快捷位置
-loacl_nginx_site="/root/nginx"
+local_nginx_site="/root/nginx"
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -245,7 +245,7 @@ EOF
 
 #安装本地版的nginx
 function install_local_nginx(){
-        mkdir -p ${loacl_nginx_site}
+        mkdir -p ${local_nginx_site}
         yum install -y yum-utils logrotate
 
         yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo
@@ -253,43 +253,43 @@ function install_local_nginx(){
 
         ln -s /usr/local/openresty/nginx/conf /root/nginx
 
-        mkdir -p ${loacl_nginx_site}/conf/conf.d
-        mkdir -p ${loacl_nginx_site}/web
-        mkdir -p ${loacl_nginx_site}/ssl
-        mkdir -p ${loacl_nginx_site}/res
-        mkdir -p ${loacl_nginx_site}/lua
-        mkdir -p ${loacl_nginx_site}/logs
-        chmod -R 755 ${loacl_nginx_site}/logs
+        mkdir -p ${local_nginx_site}/conf/conf.d
+        mkdir -p ${local_nginx_site}/web
+        mkdir -p ${local_nginx_site}/ssl
+        mkdir -p ${local_nginx_site}/res
+        mkdir -p ${local_nginx_site}/lua
+        mkdir -p ${local_nginx_site}/logs
+        chmod -R 755 ${local_nginx_site}/logs
 
         wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx_local.conf -O /usr/local/openresty/nginx/conf/nginx.conf
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${loacl_nginx_site}/conf/conf.d/api.conf.bak
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${loacl_nginx_site}/conf/conf.d/reload.sh
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${loacl_nginx_site}/conf/conf.d/index.conf
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${local_nginx_site}/conf/conf.d/api.conf.bak
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${local_nginx_site}/conf/conf.d/reload.sh
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${local_nginx_site}/conf/conf.d/index.conf
 
-        sed -i "s/access_log \/root\/nginx\/logs\/nginx.log main;/access_log \${loacl_nginx_site}\/logs\/nginx.log main;/g" /usr/local/openresty/nginx/conf/nginx.conf
+        sed -i "s/access_log \/root\/nginx\/logs\/nginx.log main;/access_log ${local_nginx_site}\/logs\/nginx.log main;/g" /usr/local/openresty/nginx/conf/nginx.conf
 
-        cat << EOF > ${loacl_nginx_site}/nginx_log.sh
+        cat << EOF > ${local_nginx_site}/nginx_log.sh
 #!/bin/bash
 now_date=\`date -d '-1 day' +%Y-%m-%d\`
-cat ${loacl_nginx_site}/logs/nginx.log > ${loacl_nginx_site}/logs/nginx-\${now_date}.log && > ${loacl_nginx_site}/logs/nginx.log
+cat ${local_nginx_site}/logs/nginx.log > ${local_nginx_site}/logs/nginx-\${now_date}.log && > ${local_nginx_site}/logs/nginx.log
 EOF
 
-        cat << EOF > ${loacl_nginx_site}/gzip_log.sh
+        cat << EOF > ${local_nginx_site}/gzip_log.sh
 #!/bin/bash
 
 for day in 1;
 do
-find ${loacl_nginx_site}/logs/ -name nginx-\`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
+find ${local_nginx_site}/logs/ -name nginx-\`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
 done
 EOF
 
 
-        cat << EOF > ${loacl_nginx_site}/del_gz.sh 
+        cat << EOF > ${local_nginx_site}/del_gz.sh 
 #!/bin/bash
-find ${loacl_nginx_site}/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
+find ${local_nginx_site}/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
 
-        chmod +x ${loacl_nginx_site}/del_gz.sh ${loacl_nginx_site}/gzip_log.sh ${loacl_nginx_site}/nginx_log.sh ${loacl_nginx_site}/conf/conf.d/reload.sh
+        chmod +x ${local_nginx_site}/del_gz.sh ${local_nginx_site}/gzip_log.sh ${local_nginx_site}/nginx_log.sh ${local_nginx_site}/conf/conf.d/reload.sh
 
         cat << EOF >> /var/spool/cron/root
 0 0 * * * /bin/sh -x /root/nginx/nginx_log.sh
@@ -462,7 +462,7 @@ function main(){
                                         install_docker_nginx_evn=1
                                         ;;
                                 2)
-                                        loacl_nginx_site=$(whiptail --title "#请输入本地版nginx位置#" --inputbox "本地版nginx默认位置有点深，推荐创建快捷方式到自己熟系的位置" 10 60 "${loacl_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                        local_nginx_site=$(whiptail --title "#请输入本地版nginx位置#" --inputbox "本地版nginx默认位置有点深，推荐创建快捷方式到自己熟系的位置" 10 60 "${local_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                         install_local_nginx_evn=1
                                         ;;
                                 3)
