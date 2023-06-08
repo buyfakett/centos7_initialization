@@ -1,6 +1,13 @@
-#  centos7_initialization
+<h1 align="center">centos7_initialization</h1>
 
-![GitHub release](https://img.shields.io/github/release/buyfakett/centos7_initialization.svg?logo=github&style=flat-square) ![GitHub release downloads](https://img.shields.io/github/downloads/buyfakett/centos7_initialization/total?logo=github) ![codacy](https://img.shields.io/badge/codacy-S-/total?logo=github) 
+
+<p align="center">
+<a href="https://github.com/buyfakett/centos7_initialization/releases"><img alt="releases" src="https://img.shields.io/github/release/buyfakett/centos7_initialization.svg?logo=github&style=flat-square"/></a>
+<a href="https://github.com/buyfakett/centos7_initialization/releases"><img alt="downloads" src="https://img.shields.io/github/downloads/buyfakett/centos7_initialization/total?logo=github"/></a>
+<a href="https://github.com/buyfakett/centos7_initialization/releases"><img alt="size" src="https://img.shields.io/github/languages/code-size/buyfakett/centos7_initialization?style=flat-square"/></a>
+<a href="https://github.com/buyfakett/centos7_initialization"><img alt="badge" src="https://img.shields.io/badge/codacy-S-/total?logo=github"/></a>
+</p>
+
 
 初始化centos7用的脚本
 
@@ -70,4 +77,6 @@ git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd c
 
 觉得作者写的不错的话可以支持一下作者，请作者喝一杯咖啡哦~
 
-![](./pay_img/ali.webp)![](./pay_img/wechat.webp)
+| 支付宝                                                       | 微信                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![alipay](./pay_img/wechat.webp) | ![wechat](./pay_img/ali.webp) |
