@@ -176,8 +176,6 @@ function install_local_nginx(){
         cp download_file/reload_local.sh ${loacl_nginx_site}/conf/conf.d/reload.sh
         cp download_file/local_nginx_index.conf ${loacl_nginx_site}/conf/conf.d/index.conf
 
-        sed -i "s/access_log \/root\/nginx\/logs\/nginx.log main;/access_log \${loacl_nginx_site}\/logs\/nginx.log main;/g" /usr/local/openresty/nginx/conf/nginx.conf
-
         cat << EOF > ${loacl_nginx_site}/nginx_log.sh
 #!/bin/bash
 now_date=\`date -d '-1 day' +%Y-%m-%d\`
