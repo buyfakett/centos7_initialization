@@ -12,7 +12,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.5.0
+shell_version=v1.5.1
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
@@ -265,8 +265,6 @@ function install_local_nginx(){
         wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${local_nginx_site}/conf/conf.d/api.conf.bak
         wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${local_nginx_site}/conf/conf.d/reload.sh
         wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${local_nginx_site}/conf/conf.d/index.conf
-
-        sed -i "s/access_log \/root\/nginx\/logs\/nginx.log main;/access_log ${local_nginx_site}\/logs\/nginx.log main;/g" /usr/local/openresty/nginx/conf/nginx.conf
 
         cat << EOF > ${local_nginx_site}/nginx_log.sh
 #!/bin/bash
