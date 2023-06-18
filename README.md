@@ -9,7 +9,7 @@
 </p>
 
 
-初始化centos7用的脚本
+中文名：初始化centos7用的脚本
 
 * [问题](#问题)
 
@@ -55,8 +55,6 @@ https://github.com/buyfakett/centos7_initialization/releases
 git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
 ```
 
-
-
 ### 支持安装测试版本
 
 如果需要使用测试版本的脚本，请使用beta分支
@@ -72,6 +70,12 @@ git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd c
 ```
 
 ### 支持
+
+1. 【Star】他，让他看到你是爱他的；
+2. 【Watching】他，时刻感知他的动态；
+3. 【Fork】他，为他增加新功能，修Bug，让他更加卡哇伊；
+4. 【Issue】他，告诉他有哪些小脾气，他会改的，手动小绵羊；
+5. 【打赏】他，为他买jk；
 
 脚本不是很成熟，有bug请及时在github反馈哦~ 或者发作者邮箱：buyfakett@vip.qq.com
 
