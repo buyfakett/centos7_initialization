@@ -93,15 +93,18 @@ function start(){
 function install_docker(){
         mkdir -p /data/docker
         
-        sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-        sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux
-        sed -i 's/#$ModLoad imtcp/$ModLoad imtcp/g' /etc/rsyslog.conf
-        sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
-        systemctl restart rsyslog
+        if [ "${enable_docker_rsyslog}"x == "1"x ];then
+                sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+                sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux
+                sed -i 's/#$ModLoad imtcp/$ModLoad imtcp/g' /etc/rsyslog.conf
+                sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
+                systemctl restart rsyslog
+        fi
 
         yum localinstall download_file/rpm/docker/*.rpm -y && systemctl enable docker --now
 
-        cat << EOF > /etc/docker/daemon.json
+        if [ "${enable_docker_rsyslog}"x == "1"x ];then
+                cat << EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": [
     "https://pee6w651.mirror.aliyuncs.com"
@@ -114,9 +117,9 @@ function install_docker(){
    }
 }
 EOF
-        systemctl restart docker
+                systemctl restart docker
 
-        cat << EOF > /etc/rsyslog.d/rule.conf
+                cat << EOF > /etc/rsyslog.d/rule.conf
 \$EscapeControlCharactersOnReceive off
 \$template CleanMsgFormat,"%msg:2:$%\n"
 
@@ -124,14 +127,9 @@ EOF
 if \$syslogtag contains 'docker' then ?docker;CleanMsgFormat
 & ~
 EOF
-        systemctl restart rsyslog
+                systemctl restart rsyslog
 
-        systemctl restart docker
-
-        cp download_file/docker-compose /usr/local/bin/docker-compose
-        chmod +x /usr/local/bin/docker-compose
-
-        cat << EOF > /data/logs/docker/gzip_log.sh
+                cat << EOF > /data/logs/docker/gzip_log.sh
 #!/bin/bash
 
 for day in 1;
@@ -140,17 +138,34 @@ find /data/logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -ex
 done
 EOF
 
-        cat << EOF > /data/logs/docker/del_gz.sh 
+                cat << EOF > /data/logs/docker/del_gz.sh 
 #!/bin/bash
 find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
 
-        chmod +x /data/logs/docker/del_gz.sh /data/logs/docker/gzip_log.sh
+                chmod +x /data/logs/docker/del_gz.sh /data/logs/docker/gzip_log.sh
 
-        cat << EOF >> /var/spool/cron/root
+                cat << EOF >> /var/spool/cron/root
 0 12 * * * /bin/sh -x /data/logs/docker/gzip_log.sh
 30 12 * * * /bin/sh -x /data/logs/docker/del_gz.sh
 EOF
+
+        else
+                cat << EOF > /etc/docker/daemon.json
+{
+  "registry-mirrors": [
+    "https://pee6w651.mirror.aliyuncs.com"
+  ]
+}
+EOF
+        fi
+
+        systemctl restart docker
+
+        cp download_file/docker-compose /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+
+
 
         cd ${pwd}
 }
@@ -324,6 +339,9 @@ function main(){
                         if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
                                 docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                 install_docker_evn=1
+                                if (whiptail --title "是否开启rsyslog" --yesno "是否开启rsyslog" --fb 15 70); then
+                                        enable_docker_rsyslog=1
+                                fi
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
@@ -382,6 +400,7 @@ function main(){
                         ;;
                 2)
                         install_docker_evn=1
+                        enable_docker_rsyslog=1
                         install_docker_nginx_evn=1
                         install_local_maven_java17_evn=1
                         install_nodejs_evn=1
