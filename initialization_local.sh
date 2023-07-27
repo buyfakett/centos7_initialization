@@ -416,13 +416,14 @@ function main(){
                 esac
 
                 setenforce 0
+                [ "$close_firewall_evn" ] && close_firewall
                 [ "$install_docker_evn" ] && install_docker
                 [ "$install_docker_nginx_evn" ] && install_docker_nginx
                 [ "$install_local_nginx_evn" ] && install_local_nginx
                 [ "$install_local_maven_java17_evn" ] && install_local_maven_java17
                 [ "$install_nodejs_evn" ] && install_nodejs
                 [ "$install_python3_evn" ] && install_python3
-                [ "$add2swap_evn" ] && /bin/bash add2swap.sh
+                [ "$add2swap_evn" ] && /bin/bash download_file/add2swap.sh
                 
         else
                 exit 0
