@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# coding:utf-8
+
+# **********************************************************"
+# * Author        : buyfakett
+# * Email         : buyfakett@vip.qq.com
+# * Create time   : 2023-1-28
+# * Last modified : 2023-7-27
+# * Filename      : initialization.sh
+# * Description   : shell
+# **********************************************************
+
+
 pwd=$(pwd)
 # docker位置
 docker_data_site="/data/data-docker"
@@ -437,13 +449,13 @@ function main(){
         echo_help
         sleep 3
 
-        if (whiptail --title "是否关闭防火墙" --yesno "是否关闭防火墙" --fb 15 70); then
-                close_firewall
+        if (whiptail --title "#是否关闭防火墙#" --yesno "是否关闭防火墙" --fb 15 70); then
+                close_firewall_evn=1
         else
                 echo -e "${Red}已跳过安装${Font}"
         fi
 
-        OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+        OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023 by buyfakett" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
         "1" "手动选择安装" \
         "2" "一键全部安装（安装docker版本nginx）" \
         "3" "退出" 3>&1 1>&2 2>&3)
@@ -453,7 +465,7 @@ function main(){
         if [ $EXITSTATUS = 0 ]; then
                 case $OPTION in
                 1)
-                        if (whiptail --title "是否安装docker" --yesno "是否安装docker" --fb 15 70); then
+                        if (whiptail --title "#是否安装docker#" --yesno "是否安装docker" --fb 15 70); then
                                 docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                 install_docker_evn=1
                                 if (whiptail --title "是否开启rsyslog" --yesno "是否开启rsyslog" --fb 15 70); then
@@ -463,7 +475,7 @@ function main(){
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
-                        NGINX_OPTION=$(whiptail --title "安装什么版本的nginx/不安装" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                        NGINX_OPTION=$(whiptail --title "#安装什么版本的nginx/不安装#" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
                         "1" "安装docker版本的nginx" \
                         "2" "安装local版本的nginx" \
                         "3" "不安装nginx" \
@@ -491,31 +503,32 @@ function main(){
                                 exit 0
                         fi
 
-                        if (whiptail --title "是否安装宿主机版本的maven和java17" --yesno "是否安装宿主机版本的maven和java17" --fb 15 70); then
+                        if (whiptail --title "#是否安装宿主机版本的maven和java17#" --yesno "是否安装宿主机版本的maven和java17" --fb 15 70); then
                                 install_local_maven_java17_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
-                        if (whiptail --title "是否安装node.js" --yesno "是否安装node.js" --fb 15 70); then
+                        if (whiptail --title "#是否安装node.js#" --yesno "是否安装node.js" --fb 15 70); then
                                 install_nodejs_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
-                        if (whiptail --title "是否安装python3" --yesno "是否安装python3" --fb 15 70); then
+                        if (whiptail --title "#是否安装python3#" --yesno "是否安装python3" --fb 15 70); then
                                 install_python3_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
 
-                        if (whiptail --title "是否生成2倍虚拟缓存" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
+                        if (whiptail --title "#是否生成2倍虚拟缓存#" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
                                 add2swap_evn=1
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
                         ;;
                 2)
+                        close_firewall_evn=1
                         install_docker_evn=1
                         enable_docker_rsyslog=1
                         install_docker_nginx_evn=1
@@ -535,6 +548,7 @@ function main(){
                 setenforce 0
                 update_packages
                 install_tools
+                [ "$close_firewall_evn" ] && close_firewall
                 [ "$install_docker_evn" ] && install_docker
                 [ "$install_docker_nginx_evn" ] && install_docker_nginx
                 [ "$install_local_nginx_evn" ] && install_local_nginx
