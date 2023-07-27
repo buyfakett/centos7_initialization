@@ -351,7 +351,7 @@ function main(){
                         if (whiptail --title "#是否安装docker#" --yesno "是否安装docker" --fb 15 70); then
                                 docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                 install_docker_evn=1
-                                if (whiptail --title "是否开启rsyslog" --yesno "是否开启rsyslog" --fb 15 70); then
+                                if (whiptail --title "#是否开启docker日志发送到本地rsyslog#" --yesno "是否开启rsyslog" --fb 15 70); then
                                         enable_docker_rsyslog=1
                                 fi
                         else
