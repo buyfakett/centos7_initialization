@@ -416,8 +416,6 @@ function main(){
                 esac
 
                 setenforce 0
-                update_packages
-                install_tools
                 [ "$install_docker_evn" ] && install_docker
                 [ "$install_docker_nginx_evn" ] && install_docker_nginx
                 [ "$install_local_nginx_evn" ] && install_local_nginx
