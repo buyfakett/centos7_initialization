@@ -36,11 +36,11 @@ vim 脚本名
 可以使用以下命令直接执行
 
 ```bash
-# 方法1
-curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && bash initialization.sh
+# 方法1（推荐）
+wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
 
 # 方法2
-wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
+curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && bash initialization.sh
 
 # 方法3：克隆到本地
 git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
