@@ -252,8 +252,8 @@ docker run -id \\
 --network=host \\
 -v \$(pwd)/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \\
 -v \$(pwd)/config/conf.d/:/etc/nginx/conf.d/ \\
--v \$(pwd)/ssl/:/etc/nginx/ssl/ \\
--v \$(pwd)/lua/:/etc/nginx/lua/ \\
+-v \$(pwd)/ssl/:/data/ssl/ \\
+-v \$(pwd)/lua/:/data/lua/ \\
 -v \$(pwd)/web/:/data/web/ \\
 -v \$(pwd)/res/:/data/res/ \\
 -v \$(pwd)/logs/:/data/logs/nginx/ \\
