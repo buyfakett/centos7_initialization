@@ -15,8 +15,10 @@
 pwd=$(pwd)
 # docker位置
 docker_data_site="/data/data-docker"
+# docker版nginx快捷位置
+docker_nginx_site="/data/docker/nginx"
 # 本地版nginx快捷位置
-local_nginx_site="/root/nginx"
+local_nginx_site="/data/docker/nginx"
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -328,34 +330,34 @@ EOF
 
 # 安装docker版本的nginx
 function install_docker_nginx(){
-        mkdir -p /root/nginx/config/conf.d/
+        mkdir -p ${docker_nginx_site}/config/conf.d/
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O /root/nginx/config/nginx.conf
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O ${docker_nginx_site}/config/nginx.conf
 
-        cat << EOF > /root/nginx/setup.sh
+        cat << EOF > ${docker_nginx_site}/setup.sh
 docker run -id \\
 --name nginx \\
 --restart=always \\
 -e LC_ALL="C.UTF-8" \\
 -e LANG="C.UTF-8" \\
 --network=host \\
--v \$(pwd)/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \\
--v \$(pwd)/config/conf.d/:/etc/nginx/conf.d/ \\
--v \$(pwd)/ssl/:/data/ssl/ \\
--v \$(pwd)/lua/:/data/lua/ \\
--v \$(pwd)/web/:/data/web/ \\
--v \$(pwd)/res/:/data/res/ \\
--v \$(pwd)/logs/:/data/logs/nginx/ \\
+-v ${docker_nginx_site}/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \\
+-v ${docker_nginx_site}/config/conf.d/:/etc/nginx/conf.d/ \\
+-v ${docker_nginx_site}/ssl/:/data/ssl/ \\
+-v ${docker_nginx_site}/lua/:/data/lua/ \\
+-v ${docker_nginx_site}/web/:/data/web/ \\
+-v ${docker_nginx_site}/res/:/data/res/ \\
+-v ${docker_nginx_site}/logs/:/data/logs/nginx/ \\
 -v /etc/localtime:/etc/localtime:ro \\
 openresty/openresty
 EOF
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O /root/nginx/config/conf.d/api.conf.bak
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O /root/nginx/config/conf.d/reload.sh
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${docker_nginx_site}/config/conf.d/api.conf.bak
+        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O ${docker_nginx_site}/config/conf.d/reload.sh
 
-        cd /root/nginx/
-        chmod +x /root/nginx/setup.sh /root/nginx/config/conf.d/reload.sh
-        /bin/bash -x /root/nginx/setup.sh
+        cd ${docker_nginx_site}/
+        chmod +x ${docker_nginx_site}/setup.sh ${docker_nginx_site}/config/conf.d/reload.sh
+        /bin/bash -x ${docker_nginx_site}/setup.sh
 
         cd ${pwd}
 
@@ -486,6 +488,7 @@ function main(){
                         if [ $NGINX_EXITSTATUS = 0 ]; then
                                 case $NGINX_OPTION in
                                 1)
+                                        docker_nginx_site=$(whiptail --title "#请输入docker版nginx位置#" --inputbox "自定义nginx的安装位置" 10 60 "${docker_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                                         install_docker_nginx_evn=1
                                         ;;
                                 2)
