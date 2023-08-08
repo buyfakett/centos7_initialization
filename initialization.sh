@@ -14,11 +14,11 @@
 
 pwd=$(pwd)
 # docker位置
-docker_data_site="/data/data-docker"
+docker_data_site=${docker_data_site:-"/data/data-docker"}
 # docker版nginx快捷位置
-docker_nginx_site="/data/docker/nginx"
+docker_nginx_site=${docker_nginx_site:-"/data/docker/nginx"}
 # 本地版nginx快捷位置
-local_nginx_site="/data/docker/nginx"
+local_nginx_site=${local_nginx_site:-"/data/docker/nginx"}
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
