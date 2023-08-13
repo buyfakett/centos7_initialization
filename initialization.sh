@@ -450,10 +450,12 @@ EOF
         node -v
         npm -v
 
+        npm config set registry https://registry.npm.taobao.org
+
         cd ${pwd}
 }
 
-# 安装node.js
+# 安装全部node.js
 function install_all_nodejs(){
         mkdir /usr/local/nodejs
         cd /usr/local/nodejs
@@ -492,6 +494,8 @@ EOF
         source /etc/profile
         node -v
         npm -v
+
+        npm config set registry https://registry.npm.taobao.org
 
         cd ${pwd}
 }
