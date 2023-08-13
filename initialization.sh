@@ -20,7 +20,7 @@ docker_nginx_site=${docker_nginx_site:-"/data/docker/nginx"}
 # 本地版nginx快捷位置
 local_nginx_site=${local_nginx_site:-"/data/docker/nginx"}
 # node版本
-install_node_version=${install_node_version:-"18"}
+install_node_version=${install_node_version:-"16"}
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -436,12 +436,7 @@ function install_nodejs(){
                 mv node-v16.20.2-linux-x64/ node-16/
         fi
 
-        if [ $install_node_version == 18 ];then
-                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v18.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v18.17.1-linux-x64.tar.xz
-                xz -d node-v18.17.1-linux-x64.tar.xz
-                tar xvf node-v18.17.1-linux-x64.tar
-                mv node-v18.17.1-linux-x64/ node-18/
-        fi
+        rm -f node-v*.tar.xz && rm -f node-v*.tar
 
         cat << EOF >> /etc/profile
 
@@ -451,6 +446,7 @@ export NODEJS_HOME=/usr/local/nodejs/node-${install_node_version}
 export PATH=\${NODEJS_HOME}/bin:\$PATH
 EOF
 
+        source /etc/profile
         node -v
         npm -v
 
@@ -482,10 +478,8 @@ function install_all_nodejs(){
         tar xvf node-v16.20.2-linux-x64.tar
         mv node-v16.20.2-linux-x64/ node-16/
 
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v18.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v18.17.1-linux-x64.tar.xz
-        xz -d node-v18.17.1-linux-x64.tar.xz
-        tar xvf node-v18.17.1-linux-x64.tar
-        mv node-v18.17.1-linux-x64/ node-18/
+
+        rm -f node-v*.tar.xz && rm -f node-v*.tar
 
         cat << EOF >> /etc/profile
 
@@ -495,6 +489,7 @@ export NODEJS_HOME=/usr/local/nodejs/node-18
 export PATH=\${NODEJS_HOME}/bin:\$PATH
 EOF
 
+        source /etc/profile
         node -v
         npm -v
 
@@ -605,7 +600,7 @@ function main(){
                         if (whiptail --title "#是否安装node.js#" --yesno "是否安装node.js" --fb 15 70); then
                                 NODE_OPTION=$(whiptail --title "#是否安装全版本的node.js#" --menu "是否安装全版本的node.js" --ok-button 确认 --cancel-button 退出 20 65 13 \
                                         "1" "安装指定版本" \
-                                        "2" "安装全部版本(默认使用18)" \
+                                        "2" "安装全部版本(默认使用16)" \
                                         "3" "退出" 3>&1 1>&2 2>&3)
 
                                         NODE_EXITSTATUS=$?
