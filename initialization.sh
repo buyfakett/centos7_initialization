@@ -485,7 +485,7 @@ function install_all_nodejs(){
 
 
 # nodejs
-export NODEJS_HOME=/usr/local/nodejs/node-18
+export NODEJS_HOME=/usr/local/nodejs/node-16
 export PATH=\${NODEJS_HOME}/bin:\$PATH
 EOF
 
