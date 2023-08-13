@@ -19,6 +19,8 @@ docker_data_site=${docker_data_site:-"/data/data-docker"}
 docker_nginx_site=${docker_nginx_site:-"/data/docker/nginx"}
 # 本地版nginx快捷位置
 local_nginx_site=${local_nginx_site:-"/data/docker/nginx"}
+# node版本
+install_node_version=${install_node_version:-"18"}
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -403,8 +405,96 @@ EOF
 
 # 安装node.js
 function install_nodejs(){
-        curl -sL https://rpm.nodesource.com/setup_14.x | bash -
-        yum install nodejs -y
+        mkdir /usr/local/nodejs
+        cd /usr/local/nodejs
+
+        if [ $install_node_version == 10 ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+                xz -d node-v10.23.0-linux-x64.tar.xz
+                tar xvf node-v10.23.0-linux-x64.tar
+                mv node-v10.23.0-linux-x64/ node-10/
+        fi
+
+        if [ $install_node_version == 12 ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+                xz -d node-v12.4.0-linux-x64.tar.xz
+                tar xvf node-v12.4.0-linux-x64.tar
+                mv node-v12.4.0-linux-x64/ node-12/
+        fi
+
+        if [ $install_node_version == 14 ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+                xz -d node-v14.17.1-linux-x64.tar.xz
+                tar xvf node-v14.17.1-linux-x64.tar
+                mv node-v14.17.1-linux-x64/ node-14/
+        fi
+
+        if [ $install_node_version == 16 ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+                xz -d node-v16.20.2-linux-x64.tar.xz
+                tar xvf node-v16.20.2-linux-x64.tar
+                mv node-v16.20.2-linux-x64/ node-16/
+        fi
+
+        if [ $install_node_version == 18 ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v18.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v18.17.1-linux-x64.tar.xz
+                xz -d node-v18.17.1-linux-x64.tar.xz
+                tar xvf node-v18.17.1-linux-x64.tar
+                mv node-v18.17.1-linux-x64/ node-18/
+        fi
+
+        cat << EOF >> /etc/profile
+
+
+# nodejs
+export NODEJS_HOME=/usr/local/nodejs/node-${install_node_version}
+export PATH=\${NODEJS_HOME}/bin:\$PATH
+EOF
+
+        node -v
+        npm -v
+
+        cd ${pwd}
+}
+
+# 安装node.js
+function install_all_nodejs(){
+        mkdir /usr/local/nodejs
+        cd /usr/local/nodejs
+
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+        xz -d node-v10.23.0-linux-x64.tar.xz
+        tar xvf node-v10.23.0-linux-x64.tar
+        mv node-v10.23.0-linux-x64/ node-10/
+
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+        xz -d node-v12.4.0-linux-x64.tar.xz
+        tar xvf node-v12.4.0-linux-x64.tar
+        mv node-v12.4.0-linux-x64/ node-12/
+
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+        xz -d node-v14.17.1-linux-x64.tar.xz
+        tar xvf node-v14.17.1-linux-x64.tar
+        mv node-v14.17.1-linux-x64/ node-14/
+
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+        xz -d node-v16.20.2-linux-x64.tar.xz
+        tar xvf node-v16.20.2-linux-x64.tar
+        mv node-v16.20.2-linux-x64/ node-16/
+
+        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v18.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v18.17.1-linux-x64.tar.xz
+        xz -d node-v18.17.1-linux-x64.tar.xz
+        tar xvf node-v18.17.1-linux-x64.tar
+        mv node-v18.17.1-linux-x64/ node-18/
+
+        cat << EOF >> /etc/profile
+
+
+# nodejs
+export NODEJS_HOME=/usr/local/nodejs/node-18
+export PATH=\${NODEJS_HOME}/bin:\$PATH
+EOF
+
         node -v
         npm -v
 
@@ -513,7 +603,30 @@ function main(){
                         fi
 
                         if (whiptail --title "#是否安装node.js#" --yesno "是否安装node.js" --fb 15 70); then
-                                install_nodejs_evn=1
+                                NODE_OPTION=$(whiptail --title "#是否安装全版本的node.js#" --menu "是否安装全版本的node.js" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                                        "1" "安装指定版本" \
+                                        "2" "安装全部版本(默认使用18)" \
+                                        "3" "退出" 3>&1 1>&2 2>&3)
+
+                                        NODE_EXITSTATUS=$?
+
+                                        if [ $NODE_EXITSTATUS = 0 ]; then
+                                                case $NODE_OPTION in
+                                                1)
+                                                        install_node_version=$(whiptail --title "#请输入需要安装的node.js的版本#" --inputbox "支持10,12,14,16,18" 10 60 "${install_node_version}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                                        install_nodejs_evn=1
+                                                        ;;
+                                                2)
+                                                        install_all_nodejs_evn=1
+                                                        ;;
+                                                *)
+                                                        echo -e "${Red}操作错误${Font}"
+                                                        ;;
+                                                esac
+                                        else
+                                                exit 0
+                                        fi
+
                         else
                                 echo -e "${Red}已跳过安装${Font}"
                         fi
@@ -536,7 +649,7 @@ function main(){
                         enable_docker_rsyslog=1
                         install_docker_nginx_evn=1
                         install_local_maven_java17_evn=1
-                        install_nodejs_evn=1
+                        install_all_nodejs_evn=1
                         install_python3_evn=1
                         add2swap_evn=1
                         ;;
@@ -557,6 +670,7 @@ function main(){
                 [ "$install_local_nginx_evn" ] && install_local_nginx
                 [ "$install_local_maven_java17_evn" ] && install_local_maven_java17
                 [ "$install_nodejs_evn" ] && install_nodejs
+                [ "$install_all_nodejs_evn" ] && install_all_nodejs
                 [ "$install_python3_evn" ] && install_python3
                 [ "$add2swap_evn" ] && /bin/bash add2swap.sh
                 
