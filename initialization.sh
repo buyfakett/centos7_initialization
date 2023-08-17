@@ -21,6 +21,8 @@ docker_nginx_site=${docker_nginx_site:-"/data/docker/nginx"}
 local_nginx_site=${local_nginx_site:-"/data/docker/nginx"}
 # node版本
 install_node_version=${install_node_version:-"16"}
+# 是否是中国大陆(1:是,2:不是)
+is_mainland=${is_mainland:-"1"}
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -123,41 +125,43 @@ function update_packages(){
         yum install -y wget whiptail
         cd /etc/yum.repos.d
 
-        inspect_script_yum=$(whiptail --title "是否换源" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
-        "0" "不换源" \
-        "1" "阿里" \
-        "2" "网易"\
-        "3" "清华大学"\
-        "4" "退出" 3>&1 1>&2 2>&3)
-        EXITSTATUS_YUM=$?
-        if [ $EXITSTATUS_YUM = 0 ]; then
-                case $inspect_script_yum in
-                0)
-                        echo -e "${Green}您已选择不换源${Font}"
-                        ;;
-                1)
-                        mv Centos-Base.repo Centos-Base.repo.bak
-                        wget -O Centos-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-                        yum clean all && yum makecache
-                        ;;
-                2)
-                        mv Centos-Base.repo Centos-Base.repo.bak
-                        wget -O Centos-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo
-                        yum clean all && yum makecache
-                        ;;
-                3)
-                        sed -e 's|^mirrorlist=|#mirrorlist=|g' \
-                        -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
-                        -i.bak \
-                        /etc/yum.repos.d/CentOS-*.repo
-                        yum clean all && yum makecache
-                        ;;
-                *)
-                        echo -e "${Red}操作错误${Font}"
-                        ;;
-                esac
-        else
-                exit 0
+        if [ "${is_mainland}"x == "1"x ];then
+                inspect_script_yum=$(whiptail --title "#是否yum换源#" --menu "#是否yum换源#" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                "0" "不换源" \
+                "1" "阿里" \
+                "2" "网易"\
+                "3" "清华大学"\
+                "4" "退出" 3>&1 1>&2 2>&3)
+                EXITSTATUS_YUM=$?
+                if [ $EXITSTATUS_YUM = 0 ]; then
+                        case $inspect_script_yum in
+                        0)
+                                echo -e "${Green}您已选择不换源${Font}"
+                                ;;
+                        1)
+                                mv Centos-Base.repo Centos-Base.repo.bak
+                                wget -O Centos-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+                                yum clean all && yum makecache
+                                ;;
+                        2)
+                                mv Centos-Base.repo Centos-Base.repo.bak
+                                wget -O Centos-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo
+                                yum clean all && yum makecache
+                                ;;
+                        3)
+                                sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+                                -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
+                                -i.bak \
+                                /etc/yum.repos.d/CentOS-*.repo
+                                yum clean all && yum makecache
+                                ;;
+                        *)
+                                echo -e "${Red}操作错误${Font}"
+                                ;;
+                        esac
+                else
+                        exit 0
+                fi
         fi
         
         yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch \
@@ -208,7 +212,8 @@ function install_docker(){
         yum -y install docker-ce docker-ce-cli containerd.io && systemctl enable docker --now
 
         if [ "${enable_docker_rsyslog}"x == "1"x ];then
-                cat << EOF > /etc/docker/daemon.json
+                if [ "${is_mainland}"x == "1"x ];then
+                        cat << EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": [
     "https://pee6w651.mirror.aliyuncs.com",
@@ -224,6 +229,19 @@ function install_docker(){
    }
 }
 EOF
+                else
+                        cat << EOF > /etc/docker/daemon.json
+{
+  "data-root": "${docker_data_site}",
+  "log-driver": "syslog",
+  "log-opts": {
+    "syslog-address": "tcp://127.0.0.1:514",
+    "tag": "docker/{{.Name}},"
+   }
+}
+EOF
+                fi
+
                 systemctl restart docker
 
                 cat << EOF > /etc/rsyslog.d/rule.conf
@@ -258,7 +276,8 @@ EOF
 30 12 * * * /bin/sh -x /data/logs/docker/del_gz.sh
 EOF
         else
-                cat << EOF > /etc/docker/daemon.json
+                if [ "${is_mainland}"x == "1"x ];then
+                        cat << EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": [
     "https://pee6w651.mirror.aliyuncs.com",
@@ -268,6 +287,8 @@ EOF
   ]
 }
 EOF
+                fi
+
         fi
 
         systemctl restart docker
@@ -456,7 +477,9 @@ EOF
         node -v
         npm -v
 
-        npm config set registry https://registry.npm.taobao.org
+        if [ "${is_mainland}"x == "1"x ];then
+                npm config set registry https://registry.npm.taobao.org
+        fi
 
         cd ${pwd}
 }
@@ -501,7 +524,9 @@ EOF
         node -v
         npm -v
 
-        npm config set registry https://registry.npm.taobao.org
+        if [ "${is_mainland}"x == "1"x ];then
+                npm config set registry https://registry.npm.taobao.org
+        fi
 
         cd ${pwd}
 }
@@ -512,7 +537,9 @@ function install_python3(){
         python3 --version
         pip3 --version
 
-        pip config set global.index-url https：//pypi.tuna.tsinghua.edu.cn/simple/
+        if [ "${is_mainland}"x == "1"x ];then
+                pip config set global.index-url https：//pypi.tuna.tsinghua.edu.cn/simple/
+        fi
 
         cd ${pwd}
 }
@@ -552,6 +579,12 @@ function main(){
                 close_firewall_evn=1
         else
                 echo -e "${Red}已跳过安装${Font}"
+        fi
+
+        if (whiptail --title "#是否所有程序换源#" --yesno "#是否所有程序换源#" --fb 15 70); then
+                is_mainland=1
+        else
+                echo -e "${Red}已选择不换源${Font}"
         fi
 
         OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023 by buyfakett" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
@@ -673,6 +706,11 @@ function main(){
                 setenforce 0
                 update_packages
                 install_tools
+
+                if [ "${is_mainland}"x == "1"x ];then
+                        echo 'Asia/Shanghai' > /etc/timezone
+                fi
+
                 [ "$close_firewall_evn" ] && close_firewall
                 [ "$install_docker_evn" ] && install_docker
                 [ "$install_docker_nginx_evn" ] && install_docker_nginx

@@ -19,6 +19,8 @@ docker_data_site=${docker_data_site:-"/data/data-docker"}
 docker_nginx_site=${docker_nginx_site:-"/data/docker/nginx"}
 # 本地版nginx快捷位置
 local_nginx_site=${local_nginx_site:-"/data/docker/nginx"}
+# 是否是中国大陆(1:是,2:不是)
+is_mainland=${is_mainland:-"1"}
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -118,7 +120,8 @@ function install_docker(){
         yum localinstall download_file/rpm/docker/*.rpm -y && systemctl enable docker --now
 
         if [ "${enable_docker_rsyslog}"x == "1"x ];then
-                cat << EOF > /etc/docker/daemon.json
+                if [ "${is_mainland}"x == "1"x ];then
+                        cat << EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": [
     "https://pee6w651.mirror.aliyuncs.com",
@@ -134,6 +137,19 @@ function install_docker(){
    }
 }
 EOF
+                else
+                        cat << EOF > /etc/docker/daemon.json
+{
+  "data-root": "${docker_data_site}",
+  "log-driver": "syslog",
+  "log-opts": {
+    "syslog-address": "tcp://127.0.0.1:514",
+    "tag": "docker/{{.Name}},"
+   }
+}
+EOF
+                fi
+
                 systemctl restart docker
 
                 cat << EOF > /etc/rsyslog.d/rule.conf
@@ -168,7 +184,8 @@ EOF
 EOF
 
         else
-                cat << EOF > /etc/docker/daemon.json
+                if [ "${is_mainland}"x == "1"x ];then
+                        cat << EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": [
     "https://pee6w651.mirror.aliyuncs.com",
@@ -178,7 +195,7 @@ EOF
   ]
 }
 EOF
-        fi
+                fi
 
         systemctl restart docker
 
@@ -321,6 +338,10 @@ function install_nodejs(){
         node -v
         npm -v
 
+        if [ "${is_mainland}"x == "1"x ];then
+                npm config set registry https://registry.npm.taobao.org
+        fi
+
         cd ${pwd}
 }
 
@@ -329,6 +350,10 @@ function install_python3(){
         yum localinstall download_file/rpm/python3/*.rpm -y
         python3 --version
         pip3 --version
+
+        if [ "${is_mainland}"x == "1"x ];then
+                pip config set global.index-url https：//pypi.tuna.tsinghua.edu.cn/simple/
+        fi
 
         cd ${pwd}
 }
@@ -342,6 +367,12 @@ function main(){
                 close_firewall_evn=1
         else
                 echo -e "${Red}已跳过安装${Font}"
+        fi
+
+        if (whiptail --title "#是否所有程序换源#" --yesno "#是否所有程序换源#" --fb 15 70); then
+                is_mainland=1
+        else
+                echo -e "${Red}已选择不换源${Font}"
         fi
 
         start
@@ -439,6 +470,11 @@ function main(){
                 esac
 
                 setenforce 0
+
+                if [ "${is_mainland}"x == "1"x ];then
+                        echo 'Asia/Shanghai' > /etc/timezone
+                fi
+                
                 [ "$close_firewall_evn" ] && close_firewall
                 [ "$install_docker_evn" ] && install_docker
                 [ "$install_docker_nginx_evn" ] && install_docker_nginx
