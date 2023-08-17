@@ -512,6 +512,8 @@ function install_python3(){
         python3 --version
         pip3 --version
 
+        pip config set global.index-url https：//pypi.tuna.tsinghua.edu.cn/simple/
+
         cd ${pwd}
 }
 
