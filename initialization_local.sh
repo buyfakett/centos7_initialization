@@ -121,7 +121,10 @@ function install_docker(){
                 cat << EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": [
-    "https://pee6w651.mirror.aliyuncs.com"
+    "https://pee6w651.mirror.aliyuncs.com",
+    "http://hub-mirror.c.163.com",
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://registry.docker-cn.com"
   ],
   "data-root": "${docker_data_site}",
   "log-driver": "syslog",
@@ -168,7 +171,10 @@ EOF
                 cat << EOF > /etc/docker/daemon.json
 {
   "registry-mirrors": [
-    "https://pee6w651.mirror.aliyuncs.com"
+    "https://pee6w651.mirror.aliyuncs.com",
+    "http://hub-mirror.c.163.com",
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://registry.docker-cn.com"
   ]
 }
 EOF
