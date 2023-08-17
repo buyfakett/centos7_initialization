@@ -6,7 +6,7 @@
 # * Author        : buyfakett
 # * Email         : buyfakett@vip.qq.com
 # * Create time   : 2023-1-28
-# * Last modified : 2023-8-13
+# * Last modified : 2023-8-17
 # * Filename      : initialization.sh
 # * Description   : shell
 # **********************************************************
