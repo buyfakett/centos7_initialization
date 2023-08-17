@@ -561,6 +561,8 @@ function main(){
                                 install_docker_evn=1
                                 if (whiptail --title "#是否开启docker日志发送到本地rsyslog#" --yesno "是否开启rsyslog" --fb 15 70); then
                                         enable_docker_rsyslog=1
+                                else
+                                        echo -e "${Red}已跳过安装${Font}"
                                 fi
                         else
                                 echo -e "${Red}已跳过安装${Font}"
