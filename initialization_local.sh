@@ -393,6 +393,7 @@ function main(){
                                 if (whiptail --title "#是否开启docker日志发送到本地rsyslog#" --yesno "是否开启rsyslog" --fb 15 70); then
                                         enable_docker_rsyslog=1
                                 else
+                                        enable_docker_rsyslog=2
                                         echo -e "${Red}已跳过安装${Font}"
                                 fi
                         else
