@@ -364,6 +364,9 @@ function install_docker_nginx(){
         wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O ${docker_nginx_site}/config/nginx.conf
 
         cat << EOF > ${docker_nginx_site}/setup.sh
+docker stop nginx
+docker rm nginx
+
 docker run -id \\
 --name nginx \\
 --restart=always \\

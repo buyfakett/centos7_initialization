@@ -269,6 +269,9 @@ function install_docker_nginx(){
         cp download_file/nginx.conf ${docker_nginx_site}/config/nginx.conf
 
         cat << EOF > ${docker_nginx_site}/setup.sh
+docker stop nginx
+docker rm nginx
+
 docker run -id \\
 --name nginx \\
 --restart=always \\
