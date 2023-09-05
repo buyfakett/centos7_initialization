@@ -176,7 +176,11 @@ function update_packages(){
 
 # 安装工具
 function install_tools(){
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/add2swap.sh
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/add2swap.sh
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/raw/master/download_file/add2swap.sh
+        fi
 }
 
 # 下载docker
@@ -293,7 +297,12 @@ EOF
 
         systemctl restart docker
 
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/docker-compose -O /usr/local/bin/docker-compose
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/docker-compose -O /usr/local/bin/docker-compose
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/releases/download/v1.2.3/docker-compose -O /usr/local/bin/docker-compose
+        fi
+
         chmod +x /usr/local/bin/docker-compose
 
 
@@ -318,10 +327,17 @@ function install_local_nginx(){
         mkdir -p ${local_nginx_site}/logs
         chmod -R 755 ${local_nginx_site}/logs
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx_local.conf -O /usr/local/openresty/nginx/conf/nginx.conf
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${local_nginx_site}/conf/conf.d/api.conf.bak
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${local_nginx_site}/conf/conf.d/reload.sh
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${local_nginx_site}/conf/conf.d/index.conf
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx_local.conf -O /usr/local/openresty/nginx/conf/nginx.conf
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${local_nginx_site}/conf/conf.d/api.conf.bak
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${local_nginx_site}/conf/conf.d/reload.sh
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${local_nginx_site}/conf/conf.d/index.conf
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/raw/master/download_file/nginx_local.conf -O /usr/local/openresty/nginx/conf/nginx.conf
+                wget https://github.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${local_nginx_site}/conf/conf.d/api.conf.bak
+                wget https://github.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${local_nginx_site}/conf/conf.d/reload.sh
+                wget https://github.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${local_nginx_site}/conf/conf.d/index.conf
+        fi
 
         cat << EOF > ${local_nginx_site}/nginx_log.sh
 #!/bin/bash
@@ -361,7 +377,11 @@ EOF
 function install_docker_nginx(){
         mkdir -p ${docker_nginx_site}/config/conf.d/
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O ${docker_nginx_site}/config/nginx.conf
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/nginx.conf -O ${docker_nginx_site}/config/nginx.conf
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/raw/master/download_file/nginx.conf -O ${docker_nginx_site}/config/nginx.conf
+        fi
 
         cat << EOF > ${docker_nginx_site}/setup.sh
 docker stop nginx
@@ -384,8 +404,13 @@ docker run -id \\
 openresty/openresty
 EOF
 
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${docker_nginx_site}/config/conf.d/api.conf.bak
-        wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O ${docker_nginx_site}/config/conf.d/reload.sh
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${docker_nginx_site}/config/conf.d/api.conf.bak
+                wget https://gitee.com/${git_project_name}/raw/master/download_file/reload.sh -O ${docker_nginx_site}/config/conf.d/reload.sh
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${docker_nginx_site}/config/conf.d/api.conf.bak
+                wget https://github.com/${git_project_name}/raw/master/download_file/reload.sh -O ${docker_nginx_site}/config/conf.d/reload.sh
+        fi
 
         cd ${docker_nginx_site}/
         chmod +x ${docker_nginx_site}/setup.sh ${docker_nginx_site}/config/conf.d/reload.sh
@@ -400,13 +425,21 @@ function install_local_maven_java17(){
         cd /usr/local/
 
         # 安装maven
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip -O /usr/local/apache-maven-3.6.3-bin.zip
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip -O /usr/local/apache-maven-3.6.3-bin.zip
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip -O /usr/local/apache-maven-3.6.3-bin.zip
+        fi
         unzip apache-maven-3.6.3-bin.zip
         rm -f apache-maven-3.6.3-bin.zip
         mv apache-maven-3.6.3 maven
         export PATH=/usr/local/maven/bin:$PATH
         mv /usr/local/maven/conf/settings.xml /usr/local/maven/conf/settings.xml.bak
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
+        fi
 
         # 安装java17
         wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz -O /usr/local/jdk-17_linux-x64_bin.tar.gz
@@ -439,28 +472,44 @@ function install_nodejs(){
         cd /usr/local/nodejs
 
         if [ $install_node_version == 10 ];then
-                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+                if [ "${is_mainland}"x == "1"x ];then
+                        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+                elif [ "${is_mainland}"x == "2"x ];then
+                        wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+                fi
                 xz -d node-v10.23.0-linux-x64.tar.xz
                 tar xvf node-v10.23.0-linux-x64.tar
                 mv node-v10.23.0-linux-x64/ node-10/
         fi
 
         if [ $install_node_version == 12 ];then
-                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+                if [ "${is_mainland}"x == "1"x ];then
+                        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+                elif [ "${is_mainland}"x == "2"x ];then
+                        wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+                fi
                 xz -d node-v12.4.0-linux-x64.tar.xz
                 tar xvf node-v12.4.0-linux-x64.tar
                 mv node-v12.4.0-linux-x64/ node-12/
         fi
 
         if [ $install_node_version == 14 ];then
-                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+                if [ "${is_mainland}"x == "1"x ];then
+                        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+                elif [ "${is_mainland}"x == "2"x ];then
+                        wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+                fi
                 xz -d node-v14.17.1-linux-x64.tar.xz
                 tar xvf node-v14.17.1-linux-x64.tar
                 mv node-v14.17.1-linux-x64/ node-14/
         fi
 
         if [ $install_node_version == 16 ];then
-                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+                if [ "${is_mainland}"x == "1"x ];then
+                        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+                elif [ "${is_mainland}"x == "2"x ];then
+                        wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+                fi
                 xz -d node-v16.20.2-linux-x64.tar.xz
                 tar xvf node-v16.20.2-linux-x64.tar
                 mv node-v16.20.2-linux-x64/ node-16/
@@ -492,22 +541,38 @@ function install_all_nodejs(){
         mkdir /usr/local/nodejs
         cd /usr/local/nodejs
 
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
+        fi
         xz -d node-v10.23.0-linux-x64.tar.xz
         tar xvf node-v10.23.0-linux-x64.tar
         mv node-v10.23.0-linux-x64/ node-10/
 
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
+        fi
         xz -d node-v12.4.0-linux-x64.tar.xz
         tar xvf node-v12.4.0-linux-x64.tar
         mv node-v12.4.0-linux-x64/ node-12/
 
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
+        fi
         xz -d node-v14.17.1-linux-x64.tar.xz
         tar xvf node-v14.17.1-linux-x64.tar
         mv node-v14.17.1-linux-x64/ node-14/
 
-        wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+        if [ "${is_mainland}"x == "1"x ];then
+                wget https://gitee.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+        elif [ "${is_mainland}"x == "2"x ];then
+                wget https://github.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
+        fi
         xz -d node-v16.20.2-linux-x64.tar.xz
         tar xvf node-v16.20.2-linux-x64.tar
         mv node-v16.20.2-linux-x64/ node-16/
@@ -587,6 +652,7 @@ function main(){
         if (whiptail --title "#是否所有程序换源#" --yesno "#是否所有程序换源#" --fb 15 70); then
                 is_mainland=1
         else
+                is_mainland=2
                 echo -e "${Red}已选择不换源${Font}"
         fi
 
