@@ -38,15 +38,17 @@ git_project_project_name=centos7_initialization
 # 远程仓库名
 git_project_name=${git_project_author_name}/${git_project_project_name}
 
-# 打印帮助文档
-function echo_help(){
+# 打印初始化
+function echo_initialization(){
         echo -e "${Green}
-        ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-        # 脚本是为了初始化centos7而准备的
-        # 本脚本集成了关闭防火墙、换源、更新yum包、docker、nginx、maven、java17、node.js、python3、生成两倍虚拟内存
-        # 脚本不是很成熟，有bug请及时在github反馈哦~
-        # 或者发作者邮箱：buyfakett@vip.qq.com
-        ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+         _   __   _   _   _____   _       ___   _       _   ______      ___   _____   _   _____   __   _  
+        | | |  \ | | | | |_   _| | |     /   | | |     | | |___  /     /   | |_   _| | | /  _  \ |  \ | | 
+        | | |   \| | | |   | |   | |    / /| | | |     | |    / /     / /| |   | |   | | | | | | |   \| | 
+        | | | |\   | | |   | |   | |   / / | | | |     | |   / /     / / | |   | |   | | | | | | | |\   | 
+        | | | | \  | | |   | |   | |  / /  | | | |___  | |  / /__   / /  | |   | |   | | | |_| | | | \  | 
+        |_| |_|  \_| |_|   |_|   |_| /_/   |_| |_____| |_| /_____| /_/   |_|   |_|   |_| \_____/ |_|  \_| 
+
+                                Email:buyfakett@vip.qq.com  Author:buyfakett
         ${Font}"
 }
 
@@ -640,7 +642,7 @@ function main(){
                 exit 0
         fi
 
-        echo_help
+        echo_initialization
         sleep 3
 
         if (whiptail --title "#是否关闭防火墙#" --yesno "是否关闭防火墙" --fb 15 70); then
