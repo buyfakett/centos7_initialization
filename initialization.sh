@@ -48,7 +48,7 @@ function echo_initialization(){
         | | | | \  | | |   | |   | |  / /  | | | |___  | |  / /__   / /  | |   | |   | | | |_| | | | \  | 
         |_| |_|  \_| |_|   |_|   |_| /_/   |_| |_____| |_| /_____| /_/   |_|   |_|   |_| \_____/ |_|  \_| 
 
-                                Email:buyfakett@vip.qq.com  Author:buyfakett
+                    Email:buyfakett@vip.qq.com  Author:buyfakett  Filename:initialization.sh
         ${Font}"
 }
 
