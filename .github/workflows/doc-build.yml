@@ -1,10 +1,7 @@
 name: Doc Build
 
 on:
-  push:
-    branch:
-      - master 
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
