@@ -1,0 +1,38 @@
+name: Doc Build
+
+on:
+  push:
+    branch: ['develop']
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.7'
+
+      - name: Install dependencies
+        run: |
+          git checkout develop
+          python -m pip install --upgrade pip
+          pip install -r doc/requirements.txt
+
+      - name: Build and publish
+        run: |
+            cd ./doc/source && mkdocs build && cd ../
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: doc # The branch the action should deploy to.
+          folder: doc/source/site # The folder the action should deploy.
