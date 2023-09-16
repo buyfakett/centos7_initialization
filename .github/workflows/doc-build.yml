@@ -2,7 +2,7 @@ name: Doc Build
 
 on:
   push:
-    branch: ['develop']
+    branch: ['master']
 
 permissions:
   contents: write
@@ -23,7 +23,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          git checkout develop
           python -m pip install --upgrade pip
           pip install -r doc/requirements.txt
 
