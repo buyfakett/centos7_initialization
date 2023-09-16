@@ -2,7 +2,8 @@ name: Doc Build
 
 on:
   push:
-    branch: ['master']
+    paths-ignore:
+      - 'doc/**'
 
 permissions:
   contents: write
