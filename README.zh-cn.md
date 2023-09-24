@@ -9,112 +9,85 @@
 </p>
 
 
-
-Chinese name: Script for initializing centos7
+中文名：初始化centos7用的脚本
 
 [Docs](README.md)|[中文文档](README.zh-cn.md)
-### Question
 
+### 问题
 
-If it cannot be executed, please execute it
+如果遇到执行不了请执行 
 
+```bash
+vim 脚本名
 
-```Bash
-Vim script name
+:set ff=unix
 
-: set ff=unix
-
-: x
+:x
 ```
+### 安装网络版本
 
-### Install Network Version
+可以使用以下命令直接执行
 
-
-You can directly execute the following command
-
-
-```Bash
-# Method 1 (recommended)
+```bash
+# 方法1（推荐）
 wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
-
 ```
-
-```Bash
-# Method 2
+```bash
+# 方法2
 curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && bash initialization.sh
 ```
-
-```Bash
-# Method 3: Clone to local
+```bash
+# 方法3：克隆到本地
 git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
 ```
 
+### 安装本地版本
 
-### Install local version
-
-
-```Bash
-# Method 1: Download the compressed package from the distribution and install it (the distribution only works on GitHub)
+```bash
+# 方法1：在发行版下载压缩包，安装（发行版只在github）
 https://github.com/buyfakett/centos7_initialization/releases
 ```
-
-```Bash
-# Method 2: Clone to local
+```bash
+# 方法2：克隆到本地
 git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
 ```
 
+### 支持安装测试版本
 
-### Support installation of test versions
+如果需要使用测试版本的脚本，请使用beta分支
 
-
-If you need to use a test version of the script, please use the beta branch
-
-
-```Bash
+```bash
 wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
 ```
 
+或者需要克隆指定分支
 
-Or you may need to clone the specified branch
-
-
-```Bash
+```bash
 git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
 ```
 
+### 支持
 
-### Support
+1. 【Star】他，让他看到你是爱他的；
 
+2. 【Watching】他，时刻感知他的动态；
 
-1. [Star] He, let him see that you love him;
+3. 【Fork】他，为他增加新功能，修Bug，让他更加卡哇伊；
 
+4. 【Issue】他，告诉他有哪些小脾气，他会改的，手动小绵羊；
 
-2. [Watching] He constantly perceives his dynamics;
+5. 【打赏】他，为他买jk；
 
+### 贡献指南
 
-3. [Fork] He added new features, fixed bugs, and made him more comfortable;
+在develop分支上修改或者新开一个分支
 
+### 其他
 
-4. [Issue] He, tell him what kind of temper tantrums he has, and he will change them, manual lamb;
+脚本不是很成熟，有bug请及时在github反馈哦~ 或者发作者邮箱：buyfakett@vip.qq.com
 
+觉得作者写的不错的话可以支持一下作者，请作者喝一杯咖啡哦~
 
-5. [Reward] He, buy him a jk;
-
-
-### Contribution Guidelines
-
-
-Modify or open a new branch on the development branch
-
-
-### Other
-
-
-The script is not very mature, please provide timely feedback on Github if there are any bugs~or send the author's email: buyfakett@vip.qq.com
-
-
-If you think the author's writing is good, you can support the author and invite him to have a cup of coffee~
-
-| alipay                                                       | wechat                                                         |
+| 支付宝                                                       | 微信                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![alipay](./pay_img/wechat.webp) | ![wechat](./pay_img/ali.webp) |
