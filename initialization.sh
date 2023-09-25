@@ -25,6 +25,8 @@ install_node_version=${install_node_version:-"16"}
 is_mainland=${is_mainland:-"1"}
 # wget重试次数
 wget_retry_number=${wget_retry_number:-"3"}
+# 如果$1传一个y就全自动
+is_auto_key=$1
 
 # 颜色参数，让脚本更好看
 Green="\033[32m"
@@ -129,8 +131,8 @@ function update_packages(){
         yum install -y wget whiptail
         cd /etc/yum.repos.d
 
-        if [ "${is_mainland}"x == "1"x ];then
-                inspect_script_yum=$(whiptail --title "#是否yum换源#" --menu "#是否yum换源#" --ok-button 确认 --cancel-button 退出 20 65 13 \
+        if [ "${is_mainland}"x == "1"x ] && [ ${is_auto_key,,}x != 'y'x ];then
+                inspect_script_yum=$(whiptail --title "# 是否yum换源 #" --menu "# 是否yum换源 #" --ok-button 确认 --cancel-button 退出 20 65 13 \
                 "0" "不换源" \
                 "1" "阿里" \
                 "2" "网易"\
@@ -166,6 +168,8 @@ function update_packages(){
                 else
                         exit 0
                 fi
+                wget -t ${wget_retry_number} -O Centos-ali.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+                wget -t ${wget_retry_number} -O Centos-qh.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo
         fi
         
         yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch \
@@ -617,191 +621,205 @@ function install_python3(){
 }
 
 function main(){
-        root_need
+        if [ ${is_auto_key,,}x != 'y'x ]; then
+                root_need
 
-        inspect_script=$(whiptail --title "是否检查脚本" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
-        "0" "gitee" \
-        "1" "github" \
-        "2" "不检查更新"\
-        "3" "退出" 3>&1 1>&2 2>&3)
-        EXITSTATUS=$?
-        if [ $EXITSTATUS = 0 ]; then
-                case $inspect_script in
-                0|1)
-                        is_inspect_script
-                        ;;
-                2)
-                        echo -e "${Green}已跳过检查更新${Font}"
-                        ;;               
-                3)
-                        exit 0
-                        ;;
-                *)
-                        echo -e "${Red}操作错误${Font}"
-                        ;;
-                esac
-        else
-                exit 0
-        fi
-
-        echo_initialization
-        sleep 3
-
-        if (whiptail --title "#是否关闭防火墙#" --yesno "是否关闭防火墙" --fb 15 70); then
-                close_firewall_evn=1
-        else
-                echo -e "${Red}已跳过安装${Font}"
-        fi
-
-        if (whiptail --title "#是否所有程序换源#" --yesno "#是否所有程序换源#" --fb 15 70); then
-                is_mainland=1
-        else
-                is_mainland=2
-                echo -e "${Red}已选择不换源${Font}"
-        fi
-
-        OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023 by buyfakett" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
-        "1" "手动选择安装" \
-        "2" "一键全部安装（安装docker版本nginx）" \
-        "3" "退出" 3>&1 1>&2 2>&3)
-
-        EXITSTATUS=$?
-
-        if [ $EXITSTATUS = 0 ]; then
-                case $OPTION in
-                1)
-                        if (whiptail --title "#是否安装docker#" --yesno "是否安装docker" --fb 15 70); then
-                                docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
-                                install_docker_evn=1
-                                if (whiptail --title "#是否开启docker日志发送到本地rsyslog#" --yesno "是否开启rsyslog" --fb 15 70); then
-                                        enable_docker_rsyslog=1
-                                else
-                                        enable_docker_rsyslog=2
-                                        echo -e "${Red}已跳过安装${Font}"
-                                fi
-                        else
-                                echo -e "${Red}已跳过安装${Font}"
-                        fi
-
-                        NGINX_OPTION=$(whiptail --title "#安装什么版本的nginx/不安装#" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
-                        "1" "安装docker版本的nginx" \
-                        "2" "安装local版本的nginx" \
-                        "3" "不安装nginx" \
-                        "4" "退出" 3>&1 1>&2 2>&3)
-
-                        NGINX_EXITSTATUS=$?
-
-                        if [ $NGINX_EXITSTATUS = 0 ]; then
-                                case $NGINX_OPTION in
-                                1)
-                                        docker_nginx_site=$(whiptail --title "#请输入docker版nginx位置#" --inputbox "自定义nginx的安装位置" 10 60 "${docker_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
-                                        install_docker_nginx_evn=1
-                                        ;;
-                                2)
-                                        local_nginx_site=$(whiptail --title "#请输入本地版nginx位置#" --inputbox "本地版nginx默认位置有点深，推荐创建快捷方式到自己熟系的位置" 10 60 "${local_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
-                                        install_local_nginx_evn=1
-                                        ;;
-                                3)
-                                        echo -e "${Red}已跳过安装${Font}"
-                                        ;;
-                                *)
-                                        echo -e "${Red}操作错误${Font}"
-                                        ;;
-                                esac
-                        else
+                inspect_script=$(whiptail --title "是否检查脚本" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                "0" "gitee" \
+                "1" "github" \
+                "2" "不检查更新"\
+                "3" "退出" 3>&1 1>&2 2>&3)
+                EXITSTATUS=$?
+                if [ $EXITSTATUS = 0 ]; then
+                        case $inspect_script in
+                        0|1)
+                                is_inspect_script
+                                ;;
+                        2)
+                                echo -e "${Green}已跳过检查更新${Font}"
+                                ;;               
+                        3)
                                 exit 0
-                        fi
-
-                        if (whiptail --title "#是否安装宿主机版本的maven和java17#" --yesno "是否安装宿主机版本的maven和java17" --fb 15 70); then
-                                install_local_maven_java17_evn=1
-                        else
-                                echo -e "${Red}已跳过安装${Font}"
-                        fi
-
-                        if (whiptail --title "#是否安装node.js#" --yesno "是否安装node.js" --fb 15 70); then
-                                NODE_OPTION=$(whiptail --title "#是否安装全版本的node.js#" --menu "是否安装全版本的node.js" --ok-button 确认 --cancel-button 退出 20 65 13 \
-                                        "1" "安装指定版本" \
-                                        "2" "安装全部版本(默认使用16)" \
-                                        "3" "退出" 3>&1 1>&2 2>&3)
-
-                                        NODE_EXITSTATUS=$?
-
-                                        if [ $NODE_EXITSTATUS = 0 ]; then
-                                                case $NODE_OPTION in
-                                                1)
-                                                        install_node_version=$(whiptail --title "#请输入需要安装的node.js的版本#" --inputbox "支持10,12,14,16,18" 10 60 "${install_node_version}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
-                                                        install_nodejs_evn=1
-                                                        ;;
-                                                2)
-                                                        install_all_nodejs_evn=1
-                                                        ;;
-                                                *)
-                                                        echo -e "${Red}操作错误${Font}"
-                                                        ;;
-                                                esac
-                                        else
-                                                exit 0
-                                        fi
-
-                        else
-                                echo -e "${Red}已跳过安装${Font}"
-                        fi
-
-                        if (whiptail --title "#是否安装python3#" --yesno "是否安装python3" --fb 15 70); then
-                                install_python3_evn=1
-                        else
-                                echo -e "${Red}已跳过安装${Font}"
-                        fi
-
-                        if (whiptail --title "#是否生成2倍虚拟缓存#" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
-                                add2swap_evn=1
-                        else
-                                echo -e "${Red}已跳过安装${Font}"
-                        fi
-                        ;;
-                2)
-                        close_firewall_evn=1
-                        install_docker_evn=1
-                        enable_docker_rsyslog=1
-                        install_docker_nginx_evn=1
-                        install_local_maven_java17_evn=1
-                        install_all_nodejs_evn=1
-                        install_python3_evn=1
-                        add2swap_evn=1
-                        ;;
-                3)
+                                ;;
+                        *)
+                                echo -e "${Red}操作错误${Font}"
+                                ;;
+                        esac
+                else
                         exit 0
-                        ;;
-                *)
-                        echo -e "${Red}操作错误${Font}"
-                        ;;
-                esac
-
-                setenforce 0
-                update_packages
-                install_tools
-
-                if [ "${is_mainland}"x == "1"x ];then
-                        echo 'Asia/Shanghai' > /etc/timezone
                 fi
 
-                [ "$close_firewall_evn" ] && close_firewall
-                [ "$install_docker_evn" ] && install_docker
-                [ "$install_docker_nginx_evn" ] && install_docker_nginx
-                [ "$install_local_nginx_evn" ] && install_local_nginx
-                [ "$install_local_maven_java17_evn" ] && install_local_maven_java17
-                [ "$install_nodejs_evn" ] && install_nodejs
-                [ "$install_all_nodejs_evn" ] && install_all_nodejs
-                [ "$install_python3_evn" ] && install_python3
-                [ "$add2swap_evn" ] && /bin/bash add2swap.sh
-                
+                echo_initialization
+                sleep 3
+
+                if (whiptail --title "#是否关闭防火墙#" --yesno "是否关闭防火墙" --fb 15 70); then
+                        close_firewall_evn=1
+                else
+                        echo -e "${Red}已跳过安装${Font}"
+                fi
+
+                if (whiptail --title "#是否所有程序换源#" --yesno "#是否所有程序换源#" --fb 15 70); then
+                        is_mainland=1
+                else
+                        is_mainland=2
+                        echo -e "${Red}已选择不换源${Font}"
+                fi
+
+                OPTION=$(whiptail --title "centos7.* 初始化脚本,  made in 2023 by buyfakett" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                "1" "手动选择安装" \
+                "2" "一键全部安装（安装docker版本nginx）" \
+                "3" "退出" 3>&1 1>&2 2>&3)
+
+                EXITSTATUS=$?
+
+                if [ $EXITSTATUS = 0 ]; then
+                        case $OPTION in
+                        1)
+                                if (whiptail --title "#是否安装docker#" --yesno "是否安装docker" --fb 15 70); then
+                                        docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                        install_docker_evn=1
+                                        if (whiptail --title "#是否开启docker日志发送到本地rsyslog#" --yesno "是否开启rsyslog" --fb 15 70); then
+                                                enable_docker_rsyslog=1
+                                        else
+                                                enable_docker_rsyslog=2
+                                                echo -e "${Red}已跳过安装${Font}"
+                                        fi
+                                else
+                                        echo -e "${Red}已跳过安装${Font}"
+                                fi
+
+                                NGINX_OPTION=$(whiptail --title "#安装什么版本的nginx/不安装#" --menu "Choose your option" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                                "1" "安装docker版本的nginx" \
+                                "2" "安装local版本的nginx" \
+                                "3" "不安装nginx" \
+                                "4" "退出" 3>&1 1>&2 2>&3)
+
+                                NGINX_EXITSTATUS=$?
+
+                                if [ $NGINX_EXITSTATUS = 0 ]; then
+                                        case $NGINX_OPTION in
+                                        1)
+                                                docker_nginx_site=$(whiptail --title "#请输入docker版nginx位置#" --inputbox "自定义nginx的安装位置" 10 60 "${docker_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                                install_docker_nginx_evn=1
+                                                ;;
+                                        2)
+                                                local_nginx_site=$(whiptail --title "#请输入本地版nginx位置#" --inputbox "本地版nginx默认位置有点深，推荐创建快捷方式到自己熟系的位置" 10 60 "${local_nginx_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                                install_local_nginx_evn=1
+                                                ;;
+                                        3)
+                                                echo -e "${Red}已跳过安装${Font}"
+                                                ;;
+                                        *)
+                                                echo -e "${Red}操作错误${Font}"
+                                                ;;
+                                        esac
+                                else
+                                        exit 0
+                                fi
+
+                                if (whiptail --title "#是否安装宿主机版本的maven和java17#" --yesno "是否安装宿主机版本的maven和java17" --fb 15 70); then
+                                        install_local_maven_java17_evn=1
+                                else
+                                        echo -e "${Red}已跳过安装${Font}"
+                                fi
+
+                                if (whiptail --title "#是否安装node.js#" --yesno "是否安装node.js" --fb 15 70); then
+                                        NODE_OPTION=$(whiptail --title "#是否安装全版本的node.js#" --menu "是否安装全版本的node.js" --ok-button 确认 --cancel-button 退出 20 65 13 \
+                                                "1" "安装指定版本" \
+                                                "2" "安装全部版本(默认使用16)" \
+                                                "3" "退出" 3>&1 1>&2 2>&3)
+
+                                                NODE_EXITSTATUS=$?
+
+                                                if [ $NODE_EXITSTATUS = 0 ]; then
+                                                        case $NODE_OPTION in
+                                                        1)
+                                                                install_node_version=$(whiptail --title "#请输入需要安装的node.js的版本#" --inputbox "支持10,12,14,16,18" 10 60 "${install_node_version}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                                                                install_nodejs_evn=1
+                                                                ;;
+                                                        2)
+                                                                install_all_nodejs_evn=1
+                                                                ;;
+                                                        *)
+                                                                echo -e "${Red}操作错误${Font}"
+                                                                ;;
+                                                        esac
+                                                else
+                                                        exit 0
+                                                fi
+
+                                else
+                                        echo -e "${Red}已跳过安装${Font}"
+                                fi
+
+                                if (whiptail --title "#是否安装python3#" --yesno "是否安装python3" --fb 15 70); then
+                                        install_python3_evn=1
+                                else
+                                        echo -e "${Red}已跳过安装${Font}"
+                                fi
+
+                                if (whiptail --title "#是否生成2倍虚拟缓存#" --yesno "是否生成2倍虚拟缓存" --fb 15 70); then
+                                        add2swap_evn=1
+                                else
+                                        echo -e "${Red}已跳过安装${Font}"
+                                fi
+                                ;;
+                        2)
+                                close_firewall_evn=1
+                                install_docker_evn=1
+                                enable_docker_rsyslog=1
+                                install_docker_nginx_evn=1
+                                install_local_maven_java17_evn=1
+                                install_all_nodejs_evn=1
+                                install_python3_evn=1
+                                add2swap_evn=1
+                                ;;
+                        3)
+                                exit 0
+                                ;;
+                        *)
+                                echo -e "${Red}操作错误${Font}"
+                                ;;
+                        esac
+
+                        setenforce 0
+                        update_packages
+                        install_tools
+
+                        if [ "${is_mainland}"x == "1"x ];then
+                                echo 'Asia/Shanghai' > /etc/timezone
+                        fi
+
+                        [ "$close_firewall_evn" ] && close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
+                        [ "$install_docker_evn" ] && install_docker && echo -e "\n${Green}安装docker成功${Font}\n"
+                        [ "$install_docker_nginx_evn" ] && install_docker_nginx && echo -e "\n${Green}安装docker版nginx成功${Font}\n"
+                        [ "$install_local_nginx_evn" ] && install_local_nginx && echo -e "\n${Green}安装本地版nginx成功${Font}\n"
+                        [ "$install_local_maven_java17_evn" ] && install_local_maven_java17 && echo -e "\n${Green}安装java和maven成功${Font}\n"
+                        [ "$install_nodejs_evn" ] && install_nodejss && echo -e "\n${Green}安装nodejs成功${Font}\n"
+                        [ "$install_all_nodejs_evn" ] && install_all_nodejs && echo -e "\n${Green}安装全部nodejs成功${Font}\n"
+                        [ "$install_python3_evn" ] && install_python3 && echo -e "\n${Green}安装python3成功${Font}\n"
+                        [ "$add2swap_evn" ] && /bin/bash add2swap.sh && echo -e "\n${Green}添加2倍虚拟内存成功${Font}\n"
+                        
+                else
+                        exit 0
+                fi
+
+                rm -f add2swap.sh
+
+                echo -e "${Green}执行完此脚本后，最好执行重启命令，因为关闭了SElinux，需要重启服务器才生效${Font}"
         else
-                exit 0
+                setenforce 0
+                update_packages && echo -e "\n${Green}更新包成功${Font}\n"
+                install_tools && echo -e "\n${Green}下载工具成功${Font}\n"
+                close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
+                install_docker && echo -e "\n${Green}安装docker成功${Font}\n"
+                install_docker_nginx && echo -e "\n${Green}安装docker版nginx成功${Font}\n"
+                install_local_maven_java17 && echo -e "\n${Green}安装java和maven成功${Font}\n"
+                install_all_nodejs && echo -e "\n${Green}安装全部nodejs成功${Font}\n"
+                install_python3 && echo -e "\n${Green}安装python3成功${Font}\n"
+                /bin/bash add2swap.sh && echo -e "\n${Green}添加2倍虚拟内存成功${Font}\n"
+                echo -e "${Green}脚本执行完成${Font}"
         fi
-
-        rm -f add2swap.sh
-
-        echo -e "${Green}执行完此脚本后，最好执行重启命令，因为关闭了SElinux，需要重启服务器才生效${Font}"
 
 }
 
