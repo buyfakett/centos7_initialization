@@ -461,27 +461,28 @@
 <h3 id="install-network-version">Install Network Version</h3>
 <p>You can directly execute the following command</p>
 <pre><code class="language-Bash"># Method 1 (recommended)
-wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; bash initialization.sh
+wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
+
 </code></pre>
 <pre><code class="language-Bash"># Method 2
-curl -LO &quot;$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^&quot;]+/initialization.sh')&quot; &amp;&amp; bash initialization.sh
+curl -LO &quot;$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^&quot;]+/initialization.sh')&quot; &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <pre><code class="language-Bash"># Method 3: Clone to local
-git clone https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; bash initialization.sh
+git clone https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <h3 id="install-local-version">Install local version</h3>
 <pre><code class="language-Bash"># Method 1: Download the compressed package from the distribution and install it (the distribution only works on GitHub)
 https://github.com/buyfakett/centos7_initialization/releases
 </code></pre>
 <pre><code class="language-Bash"># Method 2: Clone to local
-git clone https://github.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; bash initialization_local.sh
+git clone https://github.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <h3 id="support-installation-of-test-versions">Support installation of test versions</h3>
 <p>If you need to use a test version of the script, please use the beta branch</p>
-<pre><code class="language-Bash">wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; bash initialization.sh
+<pre><code class="language-Bash">wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <p>Or you may need to clone the specified branch</p>
-<pre><code class="language-Bash">git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; bash initialization.sh
+<pre><code class="language-Bash">git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <h3 id="support">Support</h3>
 <ol>

@@ -376,27 +376,27 @@
 <h3 id="_2">安装网络版本</h3>
 <p>可以使用以下命令直接执行</p>
 <pre><code class="language-bash"># 方法1（推荐）
-wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; bash initialization.sh
+wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <pre><code class="language-bash"># 方法2
-curl -LO &quot;$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^&quot;]+/initialization.sh')&quot; &amp;&amp; bash initialization.sh
+curl -LO &quot;$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^&quot;]+/initialization.sh')&quot; &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <pre><code class="language-bash"># 方法3：克隆到本地
-git clone https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; bash initialization.sh
+git clone https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <h3 id="_3">安装本地版本</h3>
 <pre><code class="language-bash"># 方法1：在发行版下载压缩包，安装（发行版只在github）
 https://github.com/buyfakett/centos7_initialization/releases
 </code></pre>
 <pre><code class="language-bash"># 方法2：克隆到本地
-git clone https://github.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; bash initialization_local.sh
+git clone https://github.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <h3 id="_4">支持安装测试版本</h3>
 <p>如果需要使用测试版本的脚本，请使用beta分支</p>
-<pre><code class="language-bash">wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; bash initialization.sh
+<pre><code class="language-bash">wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <p>或者需要克隆指定分支</p>
-<pre><code class="language-bash">git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; bash initialization.sh
+<pre><code class="language-bash">git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git &amp;&amp; cd centos7_initialization &amp;&amp; chmod +x initialization.sh &amp;&amp; ./initialization.sh
 </code></pre>
 <h3 id="_5">支持</h3>
 <ol>
