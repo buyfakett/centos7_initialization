@@ -30,15 +30,15 @@ vim 脚本名
 
 ```bash
 # 方法1（推荐）
-wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
+wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && chmod +x initialization.sh && ./initialization.sh
 ```
 ```bash
 # 方法2
-curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && bash initialization.sh
+curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && chmod +x initialization.sh && ./initialization.sh
 ```
 ```bash
 # 方法3：克隆到本地
-git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
+git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && chmod +x initialization.sh && ./initialization.sh
 ```
 
 ### 安装本地版本
@@ -49,7 +49,7 @@ https://github.com/buyfakett/centos7_initialization/releases
 ```
 ```bash
 # 方法2：克隆到本地
-git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
+git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && chmod +x initialization.sh && ./initialization.sh
 ```
 
 ### 支持安装测试版本
@@ -57,13 +57,13 @@ git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_
 如果需要使用测试版本的脚本，请使用beta分支
 
 ```bash
-wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
+wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && chmod +x initialization.sh && ./initialization.sh
 ```
 
 或者需要克隆指定分支
 
 ```bash
-git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
+git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && chmod +x initialization.sh && ./initialization.sh
 ```
 
 ### 支持

@@ -35,17 +35,18 @@ You can directly execute the following command
 
 ```Bash
 # Method 1 (recommended)
-wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
+wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && chmod +x initialization.sh && ./initialization.sh
+
 ```
 
 ```Bash
 # Method 2
-curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && bash initialization.sh
+curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && chmod +x initialization.sh && ./initialization.sh
 ```
 
 ```Bash
 # Method 3: Clone to local
-git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
+git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && chmod +x initialization.sh && ./initialization.sh
 ```
 
 
@@ -59,7 +60,7 @@ https://github.com/buyfakett/centos7_initialization/releases
 
 ```Bash
 # Method 2: Clone to local
-git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
+git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && chmod +x initialization.sh && ./initialization.sh
 ```
 
 
@@ -70,7 +71,7 @@ If you need to use a test version of the script, please use the beta branch
 
 
 ```Bash
-wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
+wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && chmod +x initialization.sh && ./initialization.sh
 ```
 
 
@@ -78,7 +79,7 @@ Or you may need to clone the specified branch
 
 
 ```Bash
-git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
+git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && chmod +x initialization.sh && ./initialization.sh
 ```
 
 
