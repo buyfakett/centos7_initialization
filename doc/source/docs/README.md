@@ -36,7 +36,6 @@ You can directly execute the following command
 ```Bash
 # Method 1 (recommended)
 wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
-
 ```
 
 ```Bash
