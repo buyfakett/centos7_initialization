@@ -9,82 +9,112 @@
 </p>
 
 
-中文名：初始化centos7用的脚本
 
-* [问题](#问题)
+Chinese name: Script for initializing centos7
 
-* [安装网络版本](#安装网络版本)
+[Docs](README.md)|[中文文档](README.zh-cn.md)
+### Question
 
-* [安装本地版本](#安装本地版本)
 
-* [安装测试版本](#安装测试版本)
-* [支持](#支持)
+If it cannot be executed, please execute it
 
-### 问题
 
-如果遇到执行不了请执行 
+```Bash
+Vim script name
 
-```bash
-vim 脚本名
+: set ff=unix
 
-:set ff=unix
-
-:x
+: x
 ```
-### 安装网络版本
 
-可以使用以下命令直接执行
+### Install Network Version
 
-```bash
-# 方法1（推荐）
+
+You can directly execute the following command
+
+
+```Bash
+# Method 1 (recommended)
 wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
+
 ```
-```bash
-# 方法2
+
+```Bash
+# Method 2
 curl -LO "$(curl -sL https://gitee.com/api/v5/repos/buyfakett/centos7_initialization/releases/latest | grep -oE 'https://[^"]+/initialization.sh')" && bash initialization.sh
 ```
-```bash
-# 方法3：克隆到本地
+
+```Bash
+# Method 3: Clone to local
 git clone https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
 ```
 
-### 安装本地版本
 
-```bash
-# 方法1：在发行版下载压缩包，安装（发行版只在github）
+### Install local version
+
+
+```Bash
+# Method 1: Download the compressed package from the distribution and install it (the distribution only works on GitHub)
 https://github.com/buyfakett/centos7_initialization/releases
 ```
-```bash
-# 方法2：克隆到本地
+
+```Bash
+# Method 2: Clone to local
 git clone https://github.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization_local.sh
 ```
 
-### 支持安装测试版本
 
-如果需要使用测试版本的脚本，请使用beta分支
+### Support installation of test versions
 
-```bash
+
+If you need to use a test version of the script, please use the beta branch
+
+
+```Bash
 wget https://gitee.com/buyfakett/centos7_initialization/raw/beta/initialization.sh && bash initialization.sh
 ```
 
-或者需要克隆指定分支
 
-```bash
+Or you may need to clone the specified branch
+
+
+```Bash
 git clone -b beta https://gitee.com/buyfakett/centos7_initialization.git && cd centos7_initialization && bash initialization.sh
 ```
 
-### 支持
 
-1. 【Star】他，让他看到你是爱他的；
-2. 【Watching】他，时刻感知他的动态；
-3. 【Fork】他，为他增加新功能，修Bug，让他更加卡哇伊；
-4. 【Issue】他，告诉他有哪些小脾气，他会改的，手动小绵羊；
-5. 【打赏】他，为他买jk；
+### Support
 
-脚本不是很成熟，有bug请及时在github反馈哦~ 或者发作者邮箱：buyfakett@vip.qq.com
 
-觉得作者写的不错的话可以支持一下作者，请作者喝一杯咖啡哦~
+1. [Star] He, let him see that you love him;
 
-| 支付宝                                                       | 微信                                                         |
+
+2. [Watching] He constantly perceives his dynamics;
+
+
+3. [Fork] He added new features, fixed bugs, and made him more comfortable;
+
+
+4. [Issue] He, tell him what kind of temper tantrums he has, and he will change them, manual lamb;
+
+
+5. [Reward] He, buy him a jk;
+
+
+### Contribution Guidelines
+
+
+Modify or open a new branch on the development branch
+
+
+### Other
+
+
+The script is not very mature, please provide timely feedback on Github if there are any bugs~or send the author's email: buyfakett@vip.qq.com
+
+
+If you think the author's writing is good, you can support the author and invite him to have a cup of coffee~
+
+| alipay                                                       | wechat                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![alipay](./pay_img/wechat.webp) | ![wechat](./pay_img/ali.webp) |

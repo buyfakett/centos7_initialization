@@ -173,7 +173,8 @@ function update_packages(){
         fi
         
         yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch \
-         chrony lrzsz tar zip unzip gcc-c++ pcre pcre-devel zlib zlib-devel openssl openssl--devel
+         chrony lrzsz tar zip unzip gcc-c++ pcre pcre-devel zlib zlib-devel openssl openssl--devel \
+         screen tree
 
         systemctl enable chronyd --now
 
