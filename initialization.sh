@@ -402,13 +402,13 @@ docker run -id \\
 -e LC_ALL="C.UTF-8" \\
 -e LANG="C.UTF-8" \\
 --network=host \\
--v ${docker_nginx_site}/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \\
--v ${docker_nginx_site}/config/conf.d/:/etc/nginx/conf.d/ \\
--v ${docker_nginx_site}/ssl/:/data/ssl/ \\
--v ${docker_nginx_site}/lua/:/data/lua/ \\
--v ${docker_nginx_site}/web/:/data/web/ \\
--v ${docker_nginx_site}/res/:/data/res/ \\
--v ${docker_nginx_site}/logs/:/data/logs/nginx/ \\
+-v ./config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf \\
+-v ./config/conf.d/:/etc/nginx/conf.d/ \\
+-v ./ssl/:/data/ssl/ \\
+-v ./lua/:/data/lua/ \\
+-v ./web/:/data/web/ \\
+-v ./res/:/data/res/ \\
+-v ./logs/:/data/logs/nginx/ \\
 -v /etc/localtime:/etc/localtime:ro \\
 openresty/openresty
 EOF
