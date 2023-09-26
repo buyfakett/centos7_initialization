@@ -809,6 +809,7 @@ function main(){
 
                 echo -e "${Green}执行完此脚本后，最好执行重启命令，因为关闭了SElinux，需要重启服务器才生效${Font}"
         else
+                enable_docker_rsyslog=1
                 setenforce 0
                 update_packages && echo -e "\n${Green}更新包成功${Font}\n"
                 install_tools && echo -e "\n${Green}下载工具成功${Font}\n"
