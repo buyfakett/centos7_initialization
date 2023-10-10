@@ -115,6 +115,6 @@ The script is not very mature, please provide timely feedback on Github if there
 
 If you think the author's writing is good, you can support the author and invite him to have a cup of coffee~
 
-| alipay                                                       | wechat                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| wechat                           | alipay                        |
+| -------------------------------- | ----------------------------- |
 | ![alipay](./pay_img/wechat.webp) | ![wechat](./pay_img/ali.webp) |
