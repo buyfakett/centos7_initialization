@@ -6,7 +6,7 @@
 # * Author        : buyfakett
 # * Email         : buyfakett@vip.qq.com
 # * Create time   : 2023-1-28
-# * Last modified : 2023-9-25
+# * Last modified : 2023-10-10
 # * Filename      : initialization.sh
 # * Description   : shell
 # **********************************************************
@@ -34,7 +34,7 @@ Font="\033[0m"
 Red="\033[31m" 
 
 # 本地脚本版本号
-shell_version=v1.7.0
+shell_version=v1.7.1
 # 远程仓库作者
 git_project_author_name=buyfakett
 # 远程仓库项目名
