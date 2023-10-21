@@ -286,7 +286,7 @@ docker run -id \\
 -v ${docker_nginx_site}/lua/:/data/lua/ \\
 -v ${docker_nginx_site}/web/:/data/web/ \\
 -v ${docker_nginx_site}/res/:/data/res/ \\
--v ${docker_nginx_site}/logs/:/data/logs/nginx/ \\
+-v /data/logs/nginx/:/data/logs/nginx/ \\
 -v /etc/localtime:/etc/localtime:ro \\
 openresty/openresty
 EOF

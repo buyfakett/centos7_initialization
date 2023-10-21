@@ -199,6 +199,7 @@ function install_docker(){
         if [ "${enable_docker_rsyslog}"x == "1"x ];then
                 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
                 sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux
+                [ $(egrep "^SELINUX=" /etc/selinux/config |wc -l) == 0 ] && echo "SELINUX=disabled" >> /etc/selinux/config
                 sed -i 's/#$ModLoad imtcp/$ModLoad imtcp/g' /etc/rsyslog.conf
                 sed -i 's/#$InputTCPServerRun 514/$InputTCPServerRun 514/g' /etc/rsyslog.conf
                 systemctl restart rsyslog
@@ -408,7 +409,7 @@ docker run -id \\
 -v ./lua/:/data/lua/ \\
 -v ./web/:/data/web/ \\
 -v ./res/:/data/res/ \\
--v ./logs/:/data/logs/nginx/ \\
+-v /data/logs/nginx/:/data/logs/nginx/ \\
 -v /etc/localtime:/etc/localtime:ro \\
 openresty/openresty
 EOF
