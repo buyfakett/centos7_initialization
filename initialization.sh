@@ -616,7 +616,8 @@ function install_python3(){
         pip3 --version
 
         if [ "${is_mainland}"x == "1"x ];then
-                pip config set global.index-url https：//pypi.tuna.tsinghua.edu.cn/simple/
+                pip3 install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple/
+                pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple/
         fi
 
         cd ${pwd}
