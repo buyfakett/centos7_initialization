@@ -121,6 +121,14 @@ function is_inspect_script(){
         fi
 }
 
+# 设置时区
+function set_sys_timezone() {
+    rm -rf /etc/localtime
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    echo "Asia/Shanghai" > /etc/timezone
+    systemctl restart crond
+}
+
 # 关闭防火墙
 function close_firewall(){
         systemctl disable firewalld.service --now
@@ -790,7 +798,7 @@ function main(){
                         install_tools
 
                         if [ "${is_mainland}"x == "1"x ];then
-                                echo 'Asia/Shanghai' > /etc/timezone
+                                set_sys_timezone
                         fi
 
                         [ "$close_firewall_evn" ] && close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
@@ -813,6 +821,7 @@ function main(){
         else
                 enable_docker_rsyslog=1
                 setenforce 0
+                set_sys_timezone
                 update_packages && echo -e "\n${Green}更新包成功${Font}\n"
                 install_tools && echo -e "\n${Green}下载工具成功${Font}\n"
                 close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
