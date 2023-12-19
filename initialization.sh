@@ -143,9 +143,10 @@ function update_packages(){
                 inspect_script_yum=$(whiptail --title "# 是否yum换源 #" --menu "# 是否yum换源 #" --ok-button 确认 --cancel-button 退出 20 65 13 \
                 "0" "不换源" \
                 "1" "阿里" \
-                "2" "网易"\
-                "3" "清华大学"\
-                "4" "退出" 3>&1 1>&2 2>&3)
+                "2" "网易" \
+                "3" "清华大学" \
+                "4" "中科大" \
+                "5" "退出" 3>&1 1>&2 2>&3)
                 EXITSTATUS_YUM=$?
                 if [ $EXITSTATUS_YUM = 0 ]; then
                         case $inspect_script_yum in
@@ -165,6 +166,13 @@ function update_packages(){
                         3)
                                 sed -e 's|^mirrorlist=|#mirrorlist=|g' \
                                 -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
+                                -i.bak \
+                                /etc/yum.repos.d/CentOS-*.repo
+                                yum clean all && yum makecache
+                                ;;
+                        4)
+                                sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+                                -e 's|^#baseurl=http://mirror.centos.org/centos|baseurl=https://mirrors.ustc.edu.cn/centos|g' \
                                 -i.bak \
                                 /etc/yum.repos.d/CentOS-*.repo
                                 yum clean all && yum makecache
