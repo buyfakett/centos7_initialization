@@ -76,16 +76,33 @@ function Inspection_system(){
                         fi
                 fi
                 ;;
+        "alinux")
+                if [[ $os_version -eq 2 ]]; then
+                        if (whiptail --title "当前系统是alinux 2.*版本，但是脚本是为CentOS 7.*设计，是否继续安装" --yesno "当前系统是alinux 2.*版本，但是脚本是为CentOS 7.*设计，是否继续安装" --fb 15 70); then
+                                main
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                                exit 0
+                        fi
+                else
+                        if (whiptail --title "当前系统不是alinux 2.*版本，是否继续安装" --yesno "当前系统不是alinux 2.*版本，是否继续安装" --fb 15 70); then
+                                main
+                        else
+                                echo -e "${Red}已跳过安装${Font}"
+                                exit 0
+                        fi
+                fi
+                ;;
         "ubuntu")
-                echo "本脚本是为centos7设计的，当前系统是：Ubuntu"
+                echo "本脚本是为centos7设计的，当前系统是：Ubuntu，当前版本为${os_version}"
                 exit 1
                 ;;
         "fedora")
-                echo "本脚本是为centos7设计的，当前系统是：Fedora"
+                echo "本脚本是为centos7设计的，当前系统是：Fedora，当前版本为${os_version}"
                 exit 1
                 ;;
         *)
-                echo "本脚本是为centos7设计的，当前系统是：$distro"
+                echo "本脚本是为centos7设计的，当前系统是：${distro}，当前版本为${os_version}"
                 exit 1
                 ;;
         esac   
