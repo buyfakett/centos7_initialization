@@ -228,6 +228,7 @@ function install_tools(){
 # 下载docker
 function install_docker(){
         mkdir -p /data/docker
+        mkdir -p /data/logs/docker
   
         if [ "${enable_docker_rsyslog}"x == "1"x ];then
                 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
@@ -352,7 +353,7 @@ EOF
         cd ${pwd}
 }
 
-#安装本地版的nginx
+# 安装本地版的nginx
 function install_local_nginx(){
         mkdir -p ${local_nginx_site}
         yum install -y yum-utils logrotate
