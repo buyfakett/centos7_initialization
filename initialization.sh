@@ -259,40 +259,50 @@ function install_docker(){
         yum makecache
         yum -y install docker-ce docker-ce-cli containerd.io && systemctl enable docker --now
 
-        if [ "${enable_docker_rsyslog}"x == "1"x ];then
-                if [ "${is_mainland}"x == "1"x ];then
-                        cat << EOF > /etc/docker/daemon.json
+        mkdir -p /etc/docker/
+
+        # 是否开启api
+        if  [ "${enable_docker_api}"x == "1"x ];then
+                        sed -i '/^ExecStart=/cExecStart=/usr/bin/dockerd' /usr/lib/systemd/system/docker.service
+                        systemctl daemon-reload
+
+                        if [ "${enable_docker_rsyslog}"x == "1"x ];then
+                        # 是否换源
+                        if [ "${is_mainland}"x == "1"x ];then
+                                cat << EOF > /etc/docker/daemon.json
 {
-  "registry-mirrors": [
-    "https://pee6w651.mirror.aliyuncs.com",
-    "http://hub-mirror.c.163.com",
-    "https://docker.mirrors.ustc.edu.cn",
-    "https://registry.docker-cn.com"
-  ],
-  "data-root": "${docker_data_site}",
-  "log-driver": "syslog",
-  "log-opts": {
-    "syslog-address": "tcp://127.0.0.1:514",
-    "tag": "docker/{{.Name}},"
-   }
+        "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"],
+        "registry-mirrors": [
+                "https://pee6w651.mirror.aliyuncs.com",
+                "http://hub-mirror.c.163.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://registry.docker-cn.com"
+        ],
+        "data-root": "${docker_data_site}",
+        "log-driver": "syslog",
+        "log-opts": {
+                "syslog-address": "tcp://127.0.0.1:514",
+                "tag": "docker/{{.Name}},"
+        }
 }
 EOF
-                else
-                        cat << EOF > /etc/docker/daemon.json
+                        else
+                                cat << EOF > /etc/docker/daemon.json
 {
-  "data-root": "${docker_data_site}",
-  "log-driver": "syslog",
-  "log-opts": {
-    "syslog-address": "tcp://127.0.0.1:514",
-    "tag": "docker/{{.Name}},"
-   }
+        "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"],
+        "data-root": "${docker_data_site}",
+        "log-driver": "syslog",
+        "log-opts": {
+                "syslog-address": "tcp://127.0.0.1:514",
+                "tag": "docker/{{.Name}},"
+        }
 }
 EOF
-                fi
+                        fi
 
-                systemctl restart docker
+                        systemctl restart docker
 
-                cat << EOF > /etc/rsyslog.d/rule.conf
+                        cat << EOF > /etc/rsyslog.d/rule.conf
 \$EscapeControlCharactersOnReceive off
 \$template CleanMsgFormat,"%msg:2:$%\n"
 
@@ -300,10 +310,10 @@ EOF
 if \$syslogtag contains 'docker' then ?docker;CleanMsgFormat
 & ~
 EOF
-                systemctl restart rsyslog
+                        systemctl restart rsyslog
 
 
-                cat << EOF > /data/logs/docker/gzip_log.sh
+                        cat << EOF > /data/logs/docker/gzip_log.sh
 #!/bin/bash
 
 for day in 1;
@@ -312,31 +322,115 @@ find /data/logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -ex
 done
 EOF
 
-                cat << EOF > /data/logs/docker/del_gz.sh 
+                        cat << EOF > /data/logs/docker/del_gz.sh 
 #!/bin/bash
 find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
 EOF
 
-                chmod +x /data/logs/docker/del_gz.sh /data/logs/docker/gzip_log.sh
+                        chmod +x /data/logs/docker/del_gz.sh /data/logs/docker/gzip_log.sh
 
-        cat << EOF >> /var/spool/cron/root
+                cat << EOF >> /var/spool/cron/root
 0 12 * * * /bin/sh -x /data/logs/docker/gzip_log.sh
 30 12 * * * /bin/sh -x /data/logs/docker/del_gz.sh
 EOF
-        else
-                if [ "${is_mainland}"x == "1"x ];then
-                        cat << EOF > /etc/docker/daemon.json
+                else
+                        if [ "${is_mainland}"x == "1"x ];then
+                                cat << EOF > /etc/docker/daemon.json
 {
-  "registry-mirrors": [
-    "https://pee6w651.mirror.aliyuncs.com",
-    "http://hub-mirror.c.163.com",
-    "https://docker.mirrors.ustc.edu.cn",
-    "https://registry.docker-cn.com"
-  ]
+        "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"],
+        "registry-mirrors": [
+                "https://pee6w651.mirror.aliyuncs.com",
+                "http://hub-mirror.c.163.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://registry.docker-cn.com"
+        ]
 }
 EOF
-                fi
+                        fi
 
+                fi
+        else
+                # 是否开启docker日志发送到本地rsyslog
+                if [ "${enable_docker_rsyslog}"x == "1"x ];then
+                        # 是否换源
+                        if [ "${is_mainland}"x == "1"x ];then
+                                cat << EOF > /etc/docker/daemon.json
+{
+        "registry-mirrors": [
+                "https://pee6w651.mirror.aliyuncs.com",
+                "http://hub-mirror.c.163.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://registry.docker-cn.com"
+        ],
+        "data-root": "${docker_data_site}",
+        "log-driver": "syslog",
+        "log-opts": {
+                "syslog-address": "tcp://127.0.0.1:514",
+                "tag": "docker/{{.Name}},"
+        }
+}
+EOF
+                        else
+                                cat << EOF > /etc/docker/daemon.json
+{
+        "data-root": "${docker_data_site}",
+        "log-driver": "syslog",
+        "log-opts": {
+                "syslog-address": "tcp://127.0.0.1:514",
+                "tag": "docker/{{.Name}},"
+        }
+}
+EOF
+                        fi
+
+                        systemctl restart docker
+
+                        cat << EOF > /etc/rsyslog.d/rule.conf
+\$EscapeControlCharactersOnReceive off
+\$template CleanMsgFormat,"%msg:2:$%\n"
+
+\$template docker,"data/logs/docker/%syslogtag:F,44:1%/%\$YEAR%-%\$MONTH%-%\$DAY%.log"
+if \$syslogtag contains 'docker' then ?docker;CleanMsgFormat
+& ~
+EOF
+                        systemctl restart rsyslog
+
+
+                        cat << EOF > /data/logs/docker/gzip_log.sh
+#!/bin/bash
+
+for day in 1;
+do
+find /data/logs/ -name \`date -d "\${day} days ago" +%Y-%m-%d\`*.log -type f -exec gzip {} \;
+done
+EOF
+
+                        cat << EOF > /data/logs/docker/del_gz.sh 
+#!/bin/bash
+find /data/logs/ -mtime +30 -name "*.gz" -exec rm -rf {} \;
+EOF
+
+                        chmod +x /data/logs/docker/del_gz.sh /data/logs/docker/gzip_log.sh
+
+                cat << EOF >> /var/spool/cron/root
+0 12 * * * /bin/sh -x /data/logs/docker/gzip_log.sh
+30 12 * * * /bin/sh -x /data/logs/docker/del_gz.sh
+EOF
+                else
+                        if [ "${is_mainland}"x == "1"x ];then
+                                cat << EOF > /etc/docker/daemon.json
+{
+        "registry-mirrors": [
+                "https://pee6w651.mirror.aliyuncs.com",
+                "http://hub-mirror.c.163.com",
+                "https://docker.mirrors.ustc.edu.cn",
+                "https://registry.docker-cn.com"
+        ]
+}
+EOF
+                        fi
+
+                fi
         fi
 
         systemctl restart docker
@@ -719,7 +813,14 @@ function main(){
                                                 enable_docker_rsyslog=1
                                         else
                                                 enable_docker_rsyslog=2
-                                                echo -e "${Red}已跳过安装${Font}"
+                                                echo -e "${Red}不开启docker日志发送到本地rsyslog${Font}"
+                                        fi
+
+                                        if (whiptail --title "#是否开启docker api#" --yesno "是否开启docker api" --fb 15 70); then
+                                                enable_docker_api=1
+                                        else
+                                                enable_docker_api=2
+                                                echo -e "${Red}不开启docker api${Font}"
                                         fi
                                 else
                                         echo -e "${Red}已跳过安装${Font}"
