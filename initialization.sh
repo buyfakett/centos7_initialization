@@ -25,6 +25,12 @@ install_node_version=${install_node_version:-"16"}
 is_mainland=${is_mainland:-"1"}
 # wget重试次数
 wget_retry_number=${wget_retry_number:-"3"}
+# 是否是aws(在自动挂载硬盘的时候，aws和别的厂商不一样)
+is_aws=${is_aws:-"f"}
+# 需要自动挂载的
+mount_dir=${mount_dir:-"/data"}
+# fstab的位置
+fstab_file=${fstab_file:-"/etc/fstab"}
 # 如果$1传一个y就全自动
 is_auto_key=$1
 
@@ -65,17 +71,17 @@ function Inspection_system(){
 
     case "$distro" in
     "centos")
-            if [[ $os_version -eq 7 ]]; then
+        if [[ $os_version -eq 7 ]]; then
+            main
+        else
+            if (whiptail --title "当前系统不是CentOS 7.*版本，是否继续安装" --yesno "当前系统不是CentOS 7.*版本，是否继续安装" --fb 15 70); then
                 main
             else
-                if (whiptail --title "当前系统不是CentOS 7.*版本，是否继续安装" --yesno "当前系统不是CentOS 7.*版本，是否继续安装" --fb 15 70); then
-                    main
-                else
-                    echo -e "${Red}已跳过安装${Font}"
-                    exit 0
-                fi
+                echo -e "${Red}已跳过安装${Font}"
+                exit 0
             fi
-            ;;
+        fi
+        ;;
     "alinux")
         if [[ $os_version -eq 2 ]]; then
             if (whiptail --title "当前系统是alinux 2.*版本，但是脚本是为CentOS 7.*设计，是否继续安装" --yesno "当前系统是alinux 2.*版本，但是脚本是为CentOS 7.*设计，是否继续安装" --fb 15 70); then
@@ -751,6 +757,103 @@ function install_python3(){
     cd ${pwd}
 }
 
+# 检查磁盘分区
+auto_mount_disk() {
+    count=0
+    TMP1=/tmp/.tmp1
+    TMP2=/tmp/.tmp2
+
+    touch $TMP1
+    touch $TMP2
+    LOCKfile=/tmp/.$(basename $0)
+    # 检查系统和依赖
+    if [ `uname -a |grep -c el7` -eq 1 ];then
+        modprobe xfs
+        echo "开始 yum 安装 xfsprogs"
+        yum -y install xfsprogs
+    fi
+    # 检查硬盘
+    touch $LOCKfile
+    for i in `fdisk -l | egrep "Disk|磁盘" | grep "/dev" | awk '{print $2}' | awk -F: '{print $1}'`
+    do
+        if [ -z "$(blkid | grep -v 'PTTYPE="dos"' | grep -w "$i")" ];then
+            DEVICE_COUNT=$(fdisk -l $i | grep "$i" | awk '{print $2}' | awk -F: '{print $1}' | wc -l)
+            NEW_MOUNT=$(df -h)
+            if [ $DEVICE_COUNT -lt 2 ];then
+                if [ -n "$(echo $NEW_MOUNT | grep -w "$i")" -o "$(grep -v '^#' $FSTAB_FILE | grep -v ^$ | awk '{print $1,$2,$3}' | grep -w "$i" | awk '{print $2}')" == '/' -o "$(grep -v '^#' $FSTAB_FILE | grep -v ^$ | awk '{print $1,$2,$3}' | grep -w "$i" | awk '{print $3}')" == 'swap' ];then
+                    echo "${Green}$i 已经被挂载${Font}"
+                else
+                    echo $i >> $LOCKfile
+                    echo "${Green}您有一个空闲磁盘，现在将fdisk并挂载它${Font}"
+                fi
+            fi
+        fi
+    done
+    DISK_LIST=$(cat $LOCKfile)
+    if [ "X$DISK_LIST" == "X" ];then
+        echo "${Red}没有空余硬盘需要挂载${Font}"
+        # rm -rf $LOCKfile
+        # exit 0
+    else
+        echo "${Green}系统存在空余硬盘:${Font}"
+        for i in `echo $DISK_LIST`
+        do
+            echo "$i"
+            count=$((count+1))
+        done
+        [ $count -gt 1 ] && { echo "${Red}此系统至少有两个可用磁盘，必须手动挂载${Font}"; exit 0; }
+        # 格式化硬盘
+        [ -n "`df -h | grep ${i}`" ] && { echo "${Green}${i} 已挂载${Font}"; echo; ALREADY_MOUNT="true"; } || ALREADY_MOUNT="false"
+        if [ "${ALREADY_MOUNT}"x != "true"x ];then
+            fdisk_fun $i > /dev/null 2>&1
+            if [ "${is_aws}"x == "t"x ]; then
+                echo "${i}p1" >> $TMP2
+            else
+                echo "${i}1" >> $TMP2
+            fi
+
+            # 创建挂载目录
+            [ -d "$MOUNT_DIR" ] && mv ${MOUNT_DIR}{,_bk}
+            mkdir -p $MOUNT_DIR
+            echo "$MOUNT_DIR" >> $TMP1
+            # 挂载硬盘
+            touch $LOCKfile
+            paste $TMP2 $TMP1 > $LOCKfile
+            while read a b
+            do
+                dev_uuid=$(blkid|grep ${a}|awk '{print $2}')
+                [ -z "`grep ^${a} $FSTAB_FILE`" -a -z "`grep ${b} $FSTAB_FILE`" ] && echo "${dev_uuid} $b xfs defaults 0 0" >> $FSTAB_FILE
+            done < $LOCKfile
+            mount -a
+            df -h
+        fi
+    fi
+
+    rm -rf $LOCKfile $TMP1 $TMP2
+}
+
+
+# fdisk，格式化和创建文件系统
+fdisk_fun() {
+fdisk -S 56 $1 << EOF
+n
+p
+1
+
+
+wq
+EOF
+
+sleep 3
+
+if [ "${is_aws}"x == "t"x ]; then
+    mkfs.xfs ${1}p1
+else
+    mkfs.xfs ${1}1
+fi
+
+}
+
 function main(){
     if [ ${is_auto_key,,}x != 'y'x ]; then
         root_need
@@ -806,6 +909,13 @@ function main(){
         if [ $EXITSTATUS = 0 ]; then
             case $OPTION in
             1)
+                if (whiptail --title "#是否自动挂载硬盘#" --yesno "是否自动挂载硬盘" --fb 15 70); then
+                    mount_dir=$(whiptail --title "#请输入挂载硬盘#" --inputbox "挂载硬盘默认位置为：/dara\n不推荐修改！！！！" 10 60 "${mount_dir}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
+                    auto_mount_disk_evn=1
+                else
+                    auto_mount_disk_evn=2
+                fi
+
                 if (whiptail --title "#是否安装docker#" --yesno "是否安装docker" --fb 15 70); then
                     docker_data_site=$(whiptail --title "#请输入docker位置#" --inputbox "docker默认位置为：/var/lib/docker\n推荐修改！！！！" 10 60 "${docker_data_site}" --ok-button 确认 --cancel-button 取消 3>&1 1>&2 2>&3)
                     install_docker_evn=1
@@ -904,6 +1014,7 @@ function main(){
                 ;;
             2)
                 close_firewall_evn=1
+                auto_mount_disk_evn=1
                 install_docker_evn=1
                 enable_docker_rsyslog=1
                 install_docker_nginx_evn=1
@@ -929,6 +1040,7 @@ function main(){
             fi
 
             [ "$close_firewall_evn" ] && close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
+            [ "$auto_mount_disk_evn" ] && auto_mount_disk
             [ "$install_docker_evn" ] && install_docker && echo -e "\n${Green}安装docker成功${Font}\n"
             [ "$install_docker_nginx_evn" ] && install_docker_nginx && echo -e "\n${Green}安装docker版nginx成功${Font}\n"
             [ "$install_local_nginx_evn" ] && install_local_nginx && echo -e "\n${Green}安装本地版nginx成功${Font}\n"
@@ -949,6 +1061,7 @@ function main(){
         enable_docker_rsyslog=1
         setenforce 0
         set_sys_timezone
+        auto_mount_disk
         update_packages && echo -e "\n${Green}更新包成功${Font}\n"
         install_tools && echo -e "\n${Green}下载工具成功${Font}\n"
         close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
