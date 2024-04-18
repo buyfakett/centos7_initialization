@@ -769,7 +769,7 @@ auto_mount_disk() {
     # 检查系统和依赖
     if [ `uname -a |grep -c el7` -eq 1 ];then
         modprobe xfs
-        echo "开始 yum 安装 xfsprogs"
+        echo "${Green}开始 yum 安装 xfsprogs${Font}"
         yum -y install xfsprogs
     fi
     # 检查硬盘
@@ -780,7 +780,7 @@ auto_mount_disk() {
             DEVICE_COUNT=$(fdisk -l $i | grep "$i" | awk '{print $2}' | awk -F: '{print $1}' | wc -l)
             NEW_MOUNT=$(df -h)
             if [ $DEVICE_COUNT -lt 2 ];then
-                if [ -n "$(echo $NEW_MOUNT | grep -w "$i")" -o "$(grep -v '^#' $FSTAB_FILE | grep -v ^$ | awk '{print $1,$2,$3}' | grep -w "$i" | awk '{print $2}')" == '/' -o "$(grep -v '^#' $FSTAB_FILE | grep -v ^$ | awk '{print $1,$2,$3}' | grep -w "$i" | awk '{print $3}')" == 'swap' ];then
+                if [ -n "$(echo $NEW_MOUNT | grep -w "$i")" -o "$(grep -v '^#' $fstab_file | grep -v ^$ | awk '{print $1,$2,$3}' | grep -w "$i" | awk '{print $2}')" == '/' -o "$(grep -v '^#' $fstab_file | grep -v ^$ | awk '{print $1,$2,$3}' | grep -w "$i" | awk '{print $3}')" == 'swap' ];then
                     echo "${Green}$i 已经被挂载${Font}"
                 else
                     echo $i >> $LOCKfile
@@ -813,16 +813,16 @@ auto_mount_disk() {
             fi
 
             # 创建挂载目录
-            [ -d "$MOUNT_DIR" ] && mv ${MOUNT_DIR}{,_bk}
-            mkdir -p $MOUNT_DIR
-            echo "$MOUNT_DIR" >> $TMP1
+            [ -d "$mount_dir" ] && mv ${mount_dir}{,_bk}
+            mkdir -p $mount_dir
+            echo "$mount_dir" >> $TMP1
             # 挂载硬盘
             touch $LOCKfile
             paste $TMP2 $TMP1 > $LOCKfile
             while read a b
             do
                 dev_uuid=$(blkid|grep ${a}|awk '{print $2}')
-                [ -z "`grep ^${a} $FSTAB_FILE`" -a -z "`grep ${b} $FSTAB_FILE`" ] && echo "${dev_uuid} $b xfs defaults 0 0" >> $FSTAB_FILE
+                [ -z "`grep ^${a} $fstab_file`" -a -z "`grep ${b} $fstab_file`" ] && echo "${dev_uuid} $b xfs defaults 0 0" >> $fstab_file
             done < $LOCKfile
             mount -a
             df -h
@@ -1032,8 +1032,8 @@ function main(){
             esac
 
             setenforce 0
-            update_packages
-            install_tools
+            update_packages && echo -e "\n${Green}更新包成功${Font}\n"
+            install_tools && echo -e "\n${Green}下载工具成功${Font}\n"
 
             if [ "${is_mainland}"x == "1"x ];then
                 set_sys_timezone
@@ -1061,8 +1061,8 @@ function main(){
         enable_docker_rsyslog=1
         setenforce 0
         set_sys_timezone
-        auto_mount_disk
         update_packages && echo -e "\n${Green}更新包成功${Font}\n"
+        auto_mount_disk
         install_tools && echo -e "\n${Green}下载工具成功${Font}\n"
         close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
         install_docker && echo -e "\n${Green}安装docker成功${Font}\n"
