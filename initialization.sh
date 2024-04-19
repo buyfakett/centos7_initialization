@@ -674,7 +674,7 @@ EOF
     npm -v
 
     if [ "${is_mainland}"x == "1"x ];then
-        npm config set registry https://registry.npm.taobao.org
+        npm config set registry https://registry.npmmirror.com
     fi
 
     cd ${pwd}
@@ -737,7 +737,7 @@ EOF
     npm -v
 
     if [ "${is_mainland}"x == "1"x ];then
-        npm config set registry https://registry.npm.taobao.org
+        npm config set registry https://registry.npmmirror.com
     fi
 
     cd ${pwd}
