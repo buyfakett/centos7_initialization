@@ -264,6 +264,10 @@ function install_docker(){
 
     yum makecache
     yum -y install docker-ce docker-ce-cli containerd.io && systemctl enable docker --now
+    
+    # 为最小安装不能自动补全做的兼容
+    source /usr/share/bash-completion/completions/docker
+    source /usr/share/bash-completion/bash_completion
 
     mkdir -p /etc/docker/
 
