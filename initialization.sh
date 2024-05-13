@@ -14,11 +14,11 @@
 
 pwd=$(pwd)
 # docker位置
-docker_data_site=${docker_data_site:-"/data/data-docker"}
+docker_data_site=${docker_data_site:-"/data/docker"}
 # docker版nginx快捷位置
-docker_nginx_site=${docker_nginx_site:-"/data/docker/nginx"}
+docker_nginx_site=${docker_nginx_site:-"/data/app/nginx"}
 # 本地版nginx快捷位置
-local_nginx_site=${local_nginx_site:-"/data/docker/nginx"}
+local_nginx_site=${local_nginx_site:-"/data/app/nginx"}
 # node版本
 install_node_version=${install_node_version:-"16"}
 # 是否是中国大陆(1:是,2:不是)
@@ -233,7 +233,7 @@ function install_tools(){
 
 # 下载docker
 function install_docker(){
-    mkdir -p /data/docker
+    mkdir -p /data/app
     mkdir -p /data/logs/docker
 
     if [ "${enable_docker_rsyslog}"x == "1"x ];then
