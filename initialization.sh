@@ -805,7 +805,7 @@ auto_mount_disk() {
             echo "$i"
             count=$((count+1))
         done
-        [ $count -gt 1 ] && { echo "${Red}此系统至少有两个可用磁盘，必须手动挂载${Font}"; exit 0; }
+        [ $count -gt 1 ] && { echo "${Red}此系统至少有两个可用磁盘，必须手动挂载${Font}";}
         # 格式化硬盘
         [ -n "`df -h | grep ${i}`" ] && { echo "${Green}${i} 已挂载${Font}"; echo; ALREADY_MOUNT="true"; } || ALREADY_MOUNT="false"
         if [ "${ALREADY_MOUNT}"x != "true"x ];then
@@ -1043,16 +1043,16 @@ function main(){
                 set_sys_timezone
             fi
 
-            [ "$close_firewall_evn" ] && close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
-            [ "$auto_mount_disk_evn" ] && auto_mount_disk
-            [ "$install_docker_evn" ] && install_docker && echo -e "\n${Green}安装docker成功${Font}\n"
-            [ "$install_docker_nginx_evn" ] && install_docker_nginx && echo -e "\n${Green}安装docker版nginx成功${Font}\n"
-            [ "$install_local_nginx_evn" ] && install_local_nginx && echo -e "\n${Green}安装本地版nginx成功${Font}\n"
-            [ "$install_local_maven_java17_evn" ] && install_local_maven_java17 && echo -e "\n${Green}安装java和maven成功${Font}\n"
-            [ "$install_nodejs_evn" ] && install_nodejss && echo -e "\n${Green}安装nodejs成功${Font}\n"
-            [ "$install_all_nodejs_evn" ] && install_all_nodejs && echo -e "\n${Green}安装全部nodejs成功${Font}\n"
-            [ "$install_python3_evn" ] && install_python3 && echo -e "\n${Green}安装python3成功${Font}\n"
-            [ "$add2swap_evn" ] && /bin/bash add2swap.sh && echo -e "\n${Green}添加2倍虚拟内存成功${Font}\n"
+            [ "${close_firewall_evn}"x == "1"x ] && close_firewall && echo -e "\n${Green}关闭防火墙成功${Font}\n"
+            [ "${auto_mount_disk_evn}"x == "1"x ] && auto_mount_disk
+            [ "${install_docker_evn}"x == "1"x ] && install_docker && echo -e "\n${Green}安装docker成功${Font}\n"
+            [ "${install_docker_nginx_evn}"x == "1"x ] && install_docker_nginx && echo -e "\n${Green}安装docker版nginx成功${Font}\n"
+            [ "${install_local_nginx_evn}"x == "1"x ] && install_local_nginx && echo -e "\n${Green}安装本地版nginx成功${Font}\n"
+            [ "${install_local_maven_java17_evn}"x == "1"x ] && install_local_maven_java17 && echo -e "\n${Green}安装java和maven成功${Font}\n"
+            [ "${install_nodejs_evn}"x == "1"x ] && install_nodejss && echo -e "\n${Green}安装nodejs成功${Font}\n"
+            [ "${install_all_nodejs_evn}"x == "1"x ] && install_all_nodejs && echo -e "\n${Green}安装全部nodejs成功${Font}\n"
+            [ "${install_python3_evn}"x == "1"x ] && install_python3 && echo -e "\n${Green}安装python3成功${Font}\n"
+            [ "${add2swap_evn}"x == "1"x ] && /bin/bash add2swap.sh && echo -e "\n${Green}添加2倍虚拟内存成功${Font}\n"
             
         else
             exit 0
