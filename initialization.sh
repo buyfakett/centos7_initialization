@@ -215,6 +215,7 @@ function update_packages(){
 
 # 安装工具
 function install_tools(){
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/add2swap.sh
     [ ! -f add2swap.sh ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/add2swap.sh
 }
 
@@ -427,6 +428,7 @@ EOF
 
     systemctl restart docker
 
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/docker-compose
     [ ! -f /usr/local/bin/docker-compose ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/docker-compose -O /usr/local/bin/docker-compose
 
     chmod +x /usr/local/bin/docker-compose
@@ -453,9 +455,13 @@ function install_local_nginx(){
     mkdir -p ${local_nginx_site}/logs
     chmod -R 755 ${local_nginx_site}/logs
 
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/nginx_local.conf
     [ ! -f /usr/local/openresty/nginx/conf/nginx.conf ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/nginx_local.conf -O /usr/local/openresty/nginx/conf/nginx.conf
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/api.conf.bak
     [ ! -f ${local_nginx_site}/conf/conf.d/api.conf.bak ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${local_nginx_site}/conf/conf.d/api.conf.bak
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/reload_local.sh
     [ ! -f ${local_nginx_site}/conf/conf.d/reload.sh ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/reload_local.sh -O ${local_nginx_site}/conf/conf.d/reload.sh
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/local_nginx_index.conf
     [ ! -f ${local_nginx_site}/conf/conf.d/index.conf ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/local_nginx_index.conf -O ${local_nginx_site}/conf/conf.d/index.conf
 
     cat << EOF > ${local_nginx_site}/nginx_log.sh
@@ -496,6 +502,7 @@ EOF
 function install_docker_nginx(){
     mkdir -p ${docker_nginx_site}/config/conf.d/
 
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/nginx.conf
     [ ! -f ${docker_nginx_site}/config/nginx.conf ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/nginx.conf -O ${docker_nginx_site}/config/nginx.conf
 
     cat << EOF > ${docker_nginx_site}/setup.sh
@@ -519,7 +526,9 @@ docker run -id \\
 openresty/openresty
 EOF
 
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/api.conf.bak
     [ ! -f ${docker_nginx_site}/config/conf.d/api.conf.bak ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/api.conf.bak -O ${docker_nginx_site}/config/conf.d/api.conf.bak
+    # https://gitee.com/buyfakett/centos7_initialization/raw/master/download_file/reload.sh
     [ ! -f ${docker_nginx_site}/config/conf.d/reload.sh ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/raw/master/download_file/reload.sh -O ${docker_nginx_site}/config/conf.d/reload.sh
 
     cd ${docker_nginx_site}/
@@ -535,15 +544,18 @@ function install_local_maven_java17(){
     cd /usr/local/
 
     # 安装maven
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip
     [ ! -f /usr/local/apache-maven-3.6.3-bin.zip ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/apache-maven-3.6.3-bin.zip -O /usr/local/apache-maven-3.6.3-bin.zip
     unzip apache-maven-3.6.3-bin.zip
     rm -f apache-maven-3.6.3-bin.zip
     mv apache-maven-3.6.3 maven
     export PATH=/usr/local/maven/bin:$PATH
     mv /usr/local/maven/conf/settings.xml /usr/local/maven/conf/settings.xml.bak
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/settings.xml
     [ ! -f /usr/local/maven/conf/settings.xml ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/settings.xml -O /usr/local/maven/conf/settings.xml
 
     # 安装java17
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/jdk-17_linux-x64_bin.tar.gz
     [ ! -f /usr/local/jdk-17_linux-x64_bin.tar.gz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/jdk-17_linux-x64_bin.tar.gz -O /usr/local/jdk-17_linux-x64_bin.tar.gz
     tar -zxvf jdk-17_linux-x64_bin.tar.gz
     mv jdk-*/ java/
@@ -574,6 +586,7 @@ function install_nodejs(){
     cd /usr/local/nodejs
 
     if [ $install_node_version == 10 ];then
+        # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz
         [ ! -f /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
         xz -d node-v10.23.0-linux-x64.tar.xz
         tar xvf node-v10.23.0-linux-x64.tar
@@ -581,6 +594,7 @@ function install_nodejs(){
     fi
 
     if [ $install_node_version == 12 ];then
+        # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz
         [ ! -f /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
         xz -d node-v12.4.0-linux-x64.tar.xz
         tar xvf node-v12.4.0-linux-x64.tar
@@ -588,6 +602,7 @@ function install_nodejs(){
     fi
 
     if [ $install_node_version == 14 ];then
+        # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz
         [ ! -f /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
         xz -d node-v14.17.1-linux-x64.tar.xz
         tar xvf node-v14.17.1-linux-x64.tar
@@ -595,6 +610,7 @@ function install_nodejs(){
     fi
 
     if [ $install_node_version == 16 ];then
+        # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz
         [ ! -f /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
         xz -d node-v16.20.2-linux-x64.tar.xz
         tar xvf node-v16.20.2-linux-x64.tar
@@ -627,21 +643,25 @@ function install_all_nodejs(){
     mkdir /usr/local/nodejs
     cd /usr/local/nodejs
 
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz
     [ ! -f /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v10.23.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v10.23.0-linux-x64.tar.xz
     xz -d node-v10.23.0-linux-x64.tar.xz
     tar xvf node-v10.23.0-linux-x64.tar
     mv node-v10.23.0-linux-x64/ node-10/
 
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz
     [ ! -f /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v12.4.0-linux-x64.tar.xz -O /usr/local/nodejs/node-v12.4.0-linux-x64.tar.xz
     xz -d node-v12.4.0-linux-x64.tar.xz
     tar xvf node-v12.4.0-linux-x64.tar
     mv node-v12.4.0-linux-x64/ node-12/
 
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz
     [ ! -f /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v14.17.1-linux-x64.tar.xz -O /usr/local/nodejs/node-v14.17.1-linux-x64.tar.xz
     xz -d node-v14.17.1-linux-x64.tar.xz
     tar xvf node-v14.17.1-linux-x64.tar
     mv node-v14.17.1-linux-x64/ node-14/
 
+    # https://gitee.com/buyfakett/centos7_initialization/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz
     [ ! -f /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz ] && wget -t ${wget_retry_number} https://${download_type}.com/${git_project_name}/releases/download/v1.2.3/node-v16.20.2-linux-x64.tar.xz -O /usr/local/nodejs/node-v16.20.2-linux-x64.tar.xz
     xz -d node-v16.20.2-linux-x64.tar.xz
     tar xvf node-v16.20.2-linux-x64.tar
