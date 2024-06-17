@@ -164,10 +164,9 @@ function update_packages(){
         inspect_script_yum=$(whiptail --title "# 是否yum换源 #" --menu "# 是否yum换源 #" --ok-button 确认 --cancel-button 退出 20 65 13 \
         "0" "不换源" \
         "1" "阿里" \
-        "2" "网易" \
-        "3" "清华大学" \
-        "4" "中科大" \
-        "5" "退出" 3>&1 1>&2 2>&3)
+        "2" "清华大学" \
+        "3" "中科大" \
+        "4" "退出" 3>&1 1>&2 2>&3)
         EXITSTATUS_YUM=$?
         if [ $EXITSTATUS_YUM = 0 ]; then
             case $inspect_script_yum in
@@ -180,18 +179,13 @@ function update_packages(){
                 yum clean all && yum makecache
                 ;;
             2)
-                mv Centos-Base.repo Centos-Base.repo.bak
-                wget -t ${wget_retry_number} -O Centos-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo
-                yum clean all && yum makecache
-                ;;
-            3)
                 sed -e 's|^mirrorlist=|#mirrorlist=|g' \
                 -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' \
                 -i.bak \
                 /etc/yum.repos.d/CentOS-*.repo
                 yum clean all && yum makecache
                 ;;
-            4)
+            3)
                 sed -e 's|^mirrorlist=|#mirrorlist=|g' \
                 -e 's|^#baseurl=http://mirror.centos.org/centos|baseurl=https://mirrors.ustc.edu.cn/centos|g' \
                 -i.bak \
@@ -206,7 +200,6 @@ function update_packages(){
             exit 0
         fi
         wget -t ${wget_retry_number} -O Centos-ali.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-        wget -t ${wget_retry_number} -O Centos-qh.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo
     fi
     
     yum install -y yum-utils device-mapper-persistent-data lvm2 tree git bash-completion.noarch \
@@ -248,7 +241,6 @@ function install_docker(){
 # EOF
     
     cd /etc/yum.repos.d
-    [ ! -f CentOS7-Base-163.repo ] && wget -t ${wget_retry_number} http://mirrors.163.com/.help/CentOS7-Base-163.repo
     [ ! -f Centos-7.repo ] && wget -t ${wget_retry_number} http://mirrors.aliyun.com/repo/Centos-7.repo
     [ ! -f epel-testing.repo ] && wget -t ${wget_retry_number} http://mirrors.aliyun.com/repo/epel-testing.repo
     [ ! -f epel-7.repo ] && wget -t ${wget_retry_number} http://mirrors.aliyun.com/repo/epel-7.repo
@@ -278,7 +270,6 @@ function install_docker(){
     "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"],
     "registry-mirrors": [
         "https://pee6w651.mirror.aliyuncs.com",
-        "http://hub-mirror.c.163.com",
         "https://docker.mirrors.ustc.edu.cn",
         "https://registry.docker-cn.com"
     ],
@@ -344,7 +335,6 @@ EOF
     "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"],
     "registry-mirrors": [
         "https://pee6w651.mirror.aliyuncs.com",
-        "http://hub-mirror.c.163.com",
         "https://docker.mirrors.ustc.edu.cn",
         "https://registry.docker-cn.com"
     ]
@@ -362,7 +352,6 @@ EOF
 {
     "registry-mirrors": [
         "https://pee6w651.mirror.aliyuncs.com",
-        "http://hub-mirror.c.163.com",
         "https://docker.mirrors.ustc.edu.cn",
         "https://registry.docker-cn.com"
     ],
@@ -426,7 +415,6 @@ EOF
 {
     "registry-mirrors": [
         "https://pee6w651.mirror.aliyuncs.com",
-        "http://hub-mirror.c.163.com",
         "https://docker.mirrors.ustc.edu.cn",
         "https://registry.docker-cn.com"
     ]
